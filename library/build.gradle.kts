@@ -9,7 +9,7 @@ group = "org.symera"
 version = "1"
 
 android {
-    namespace = "org.symera.extensions.lib"
+    namespace = "org.symera.source"
     compileSdk = 36
 
     defaultConfig {
