@@ -6,7 +6,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.github.<owner>:extensions-lib:<tag>")
+    compileOnly("com.github.symeraorg:extensions-lib:<tag>")
 }
 ```
 
