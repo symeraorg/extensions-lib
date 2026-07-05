@@ -78,6 +78,13 @@ abstract class SymeraHttpSource : SymeraCatalogSource {
     protected open fun seasonsRequest(content: SContent): Request = GET(getContentUrl(content), headers)
     protected open fun seasonsParse(response: Response): List<SSeason> = emptyList()
 
+    override suspend fun fetchRelatedContentList(content: SContent): List<SContent> {
+        return client.awaitSuccess(relatedContentRequest(content)).use(::relatedContentParse)
+    }
+
+    protected open fun relatedContentRequest(content: SContent): Request = GET(getContentUrl(content), headers)
+    protected open fun relatedContentParse(response: Response): List<SContent> = emptyList()
+
     override suspend fun getHosters(item: SPlayableItem): List<SHoster> {
         return client.awaitSuccess(hostersRequest(item)).use { response -> hostersParse(response).sortHosters() }
     }

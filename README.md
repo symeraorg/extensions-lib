@@ -12,7 +12,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    compileOnly "org.symera:extensions-lib:1"
+    compileOnly "org.symera:extensions-lib:2"
 }
 ```
 
@@ -23,10 +23,11 @@ dependencies {
 | Interface | Purpose |
 |---|---|
 | `SymeraSource` | Base contract every source must implement |
-| `SymeraCatalogSource` | Adds movie and series catalog browsing, search, home sections |
+| `SymeraCatalogSource` | Adds movie and series catalog browsing, search, home sections, related content |
 | `ConfigurableSymeraSource` | Adds app-rendered preferences |
 | `SymeraSourceFactory` | Factory for multi-source extensions |
 | `UnmeteredSource` | Marker for self-hosted / local-network sources |
+| `LocalSymeraSource` | Marker for sources that read local media through Symera's local filesystem facade |
 
 ### HTTP sources (`org.symera.source.online`)
 
@@ -50,6 +51,45 @@ dependencies {
 | `Filter`, `FilterList` | Search/browse filter hierarchy |
 | `SourcePreference` | Preference UI model for configurable sources |
 | `UpdateStrategy`, `FetchType` | Optional host hints for update and fetch behavior |
+
+### Local sources (`org.symera.source.local`)
+
+| Type | Description |
+|---|---|
+| `LocalSymeraSource` | Optional marker for local media sources |
+| `LocalSymeraSourceFileSystem` | `UniFile` facade for Symera's host-provided local content directory |
+
+The host app sets `LocalSymeraSourceFileSystem.defaultBaseDirectoryProvider`. Extensions can then list content directories and playable files without handling Android storage permissions directly.
+
+Extensions that use local-source APIs should also compile against UniFile:
+
+```kotlin
+compileOnly("com.github.komikku-app:UniFile:084a54140a")
+```
+
+### Related content
+
+`SymeraCatalogSource` includes Aniyomi-style related-content hooks adapted for movies and series:
+
+| Member | Description |
+|---|---|
+| `supportsRelatedContent` | Source can fetch/parse related content directly |
+| `disableRelatedContentBySearch` | Disables search fallback using stripped title keywords |
+| `disableRelatedContent` | Disables related content entirely |
+| `fetchRelatedContentList(content)` | Direct source/site related-content fetch |
+| `getRelatedContent(...)` | Pushes related batches as `Pair<keyword, List<SContent>>` |
+| `getRelatedContentBySearch(...)` | Default title-keyword search fallback |
+
+HTTP sources can override `relatedContentRequest()` and `relatedContentParse()`. Parsed HTML sources can override `relatedContentSelector()` and `relatedContentFromElement()`.
+
+### Torrent utilities (`org.symera.source.torrentutils`)
+
+| Type | Description |
+|---|---|
+| `TorrentUtils` | Parses magnet links and `.torrent` files from HTTP(S), `file://`, or local paths |
+| `TorrentInfo` | Torrent title, files, infohash, total size, trackers |
+| `TorrentFile` | Individual torrent file with `toMagnetURI()` helper |
+| `DeadTorrentException` | Thrown when a torrent cannot be loaded or parsed |
 
 ### Utilities
 
@@ -77,7 +117,7 @@ Every extension must provide at least one source implementing `SymeraSource`. So
 
 Catalog sources expose `getMovies(page)` and `getSeries(page)` as first-class browse entry points. `search(page, query, filters)` and `getFilterList()` remain independent and are still used for text search and filtered browsing.
 
-Current SDK version: `1`.
+Current SDK version: `2`.
 
 ## License
 

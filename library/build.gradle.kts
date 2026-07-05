@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.symera"
-version = "1"
+version = "2"
 
 android {
     namespace = "org.symera.source"
@@ -44,6 +44,7 @@ dependencies {
     compileOnly(libs.coroutines)
     compileOnly(libs.kotlinx.serialization.json)
     compileOnly(libs.kotlinx.serialization.json.okio)
+    compileOnly(libs.unifile)
 }
 
 publishing {

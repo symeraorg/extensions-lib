@@ -65,6 +65,14 @@ abstract class ParsedSymeraHttpSource : SymeraHttpSource() {
     protected open fun seasonsSelector(): String? = null
     protected open fun seasonFromElement(element: Element): SSeason = throw UnsupportedOperationException("Seasons are not supported")
 
+    override fun relatedContentParse(response: Response): List<SContent> {
+        val selector = relatedContentSelector() ?: return emptyList()
+        return response.asJsoup().select(selector).map(::relatedContentFromElement)
+    }
+
+    protected open fun relatedContentSelector(): String? = null
+    protected open fun relatedContentFromElement(element: Element): SContent = throw UnsupportedOperationException("Related content is not supported")
+
     override fun hostersParse(response: Response): List<SHoster> {
         val selector = hostersSelector() ?: return emptyList()
         return response.asJsoup().select(selector).map(::hosterFromElement)

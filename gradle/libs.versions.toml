@@ -4,6 +4,7 @@ coroutines = "1.10.2"
 jsoup = "1.22.2"
 kotlinx-serialization = "1.9.0"
 okhttp = "5.4.0"
+unifile = "084a54140a"
 
 [libraries]
 coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -11,6 +12,7 @@ jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-json-okio = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-okio", version.ref = "kotlinx-serialization" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+unifile = { module = "com.github.komikku-app:UniFile", version.ref = "unifile" }
 
 [plugins]
 android-library = { id = "com.android.library", version.ref = "agp" }
