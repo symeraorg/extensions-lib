@@ -1,4 +1,4 @@
 jdk:
-  - openjdk17
+  - openjdk21
 install:
-  - ./gradlew build :library:publishToMavenLocal
+  - ./gradlew :library:check :library:assembleRelease :library:publishToMavenLocal --no-daemon
