@@ -114,9 +114,11 @@ fun renderPublicApi(outputFile: File) {
     val executable = java21.metadata.installationPath.file(
         "bin/javap${if (System.getProperty("os.name").startsWith("Windows")) ".exe" else ""}",
     ).asFile
-    val process = ProcessBuilder(
+    val processBuilder = ProcessBuilder(
         listOf(executable.absolutePath, "-protected", "-s", "-constants", "-classpath", classesJar.absolutePath) + classNames,
-    ).redirectErrorStream(true).start()
+    ).redirectErrorStream(true)
+    processBuilder.environment().keys.removeAll { it in setOf("JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS") }
+    val process = processBuilder.start()
     val output = process.inputStream.bufferedReader().use { it.readText() }
     check(process.waitFor() == 0) { "javap failed:\n$output" }
     outputFile.parentFile.mkdirs()
