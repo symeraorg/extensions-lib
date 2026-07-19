@@ -139,8 +139,17 @@ val checkPublicApi = tasks.register("checkPublicApi") {
         require(expected.isFile) { "Missing API snapshot. Run :library:generatePublicApi and review it." }
         val actual = layout.buildDirectory.file("tmp/publicApi/current.api").get().asFile
         renderPublicApi(actual)
-        check(expected.readText() == actual.readText()) {
-            "Public API changed. Run :library:generatePublicApi, review the diff, and update the snapshot intentionally."
+        val expectedLines = expected.readLines()
+        val actualLines = actual.readLines()
+        val mismatchIndex = (0 until maxOf(expectedLines.size, actualLines.size)).firstOrNull { index ->
+            expectedLines.getOrNull(index) != actualLines.getOrNull(index)
+        }
+        check(mismatchIndex == null) {
+            val lineNumber = requireNotNull(mismatchIndex) + 1
+            "Public API changed at line $lineNumber. " +
+                "Expected: ${expectedLines.getOrNull(mismatchIndex)}; " +
+                "actual: ${actualLines.getOrNull(mismatchIndex)}. " +
+                "Run :library:generatePublicApi and review the diff."
         }
     }
 }
