@@ -3,7 +3,7 @@
 Contracts and implementation tools for Symera VOD and IPTV extensions.
 Each extension decides which catalog, parsing, authentication, playback, local, or torrent tools it needs.
 
-**API version:** 3 · **Release:** 3.0.0
+**API version:** 3 · **Release:** 3.0.1
 
 ## Dependency
 
@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.github.symeraorg:extensions-lib:3.0.0")
+    compileOnly("com.github.symeraorg:extensions-lib:3.0.1")
 }
 ```
 
