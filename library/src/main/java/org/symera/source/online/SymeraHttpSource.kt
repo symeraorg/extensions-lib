@@ -1,164 +1,212 @@
 package org.symera.source.online
 
-import java.net.URI
-import java.net.URISyntaxException
-import java.security.MessageDigest
+import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.Headers
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import org.symera.source.CatalogCapability
+import org.symera.source.SourceCapability
+import org.symera.source.SourceEnvironment
+import org.symera.source.SourceException
+import org.symera.source.SourceIdGenerator
 import org.symera.source.SymeraCatalogSource
+import org.symera.source.challenge.WebChallengeSource
 import org.symera.source.model.ContentPage
 import org.symera.source.model.FilterList
+import org.symera.source.model.HomeSection
+import org.symera.source.model.PageRequest
 import org.symera.source.model.SContent
 import org.symera.source.model.SHoster
 import org.symera.source.model.SPlayableItem
 import org.symera.source.model.SSeason
 import org.symera.source.model.SStream
+import org.symera.source.network.awaitSuccess
 
-/** Base class for sources backed by an HTTP website or API. */
-abstract class SymeraHttpSource : SymeraCatalogSource {
+/** HTTP request/parse base. A source only overrides methods for capabilities it advertises. */
+abstract class SymeraHttpSource(
+    protected val environment: SourceEnvironment,
+) : SymeraCatalogSource {
     abstract val baseUrl: String
 
     open val versionId: Int = 1
 
     override val id: Long by lazy { generateId(name, lang, versionId) }
 
-    open val client: OkHttpClient
-        get() = defaultClientProvider()
-
-    open val cloudflareClient: OkHttpClient
-        get() = defaultCloudflareClientProvider()
+    open val client: OkHttpClient by lazy {
+        val challengeSource = this as? WebChallengeSource
+        val challengeFactory = environment.webChallengeInterceptorFactory
+        environment.httpClient.newBuilder()
+            .addInterceptor { chain ->
+                val request = chain.request().let { current ->
+                    if (current.header("User-Agent") == null) {
+                        current.newBuilder().header("User-Agent", environment.userAgent).build()
+                    } else {
+                        current
+                    }
+                }
+                chain.proceed(request)
+            }
+            .apply {
+                if (challengeSource != null && challengeFactory != null) {
+                    addInterceptor(challengeFactory.create(id, challengeSource::webChallengePolicy))
+                }
+            }
+            .build()
+    }
 
     val headers: Headers by lazy { headersBuilder().build() }
 
-    protected open fun headersBuilder(): Headers.Builder = Headers.Builder().add("User-Agent", defaultUserAgentProvider())
+    protected open fun headersBuilder(): Headers.Builder =
+        Headers.Builder().add("User-Agent", environment.userAgent)
 
-    override suspend fun getMovies(page: Int): ContentPage {
-        return client.awaitSuccess(moviesRequest(page)).use(::moviesParse)
-    }
+    override suspend fun getMovies(request: PageRequest): ContentPage =
+        execute(moviesRequest(request), ::moviesParse)
 
-    protected abstract fun moviesRequest(page: Int): Request
-    protected abstract fun moviesParse(response: Response): ContentPage
+    protected open fun moviesRequest(request: PageRequest): Request = unsupported(CatalogCapability.MOVIES)
+    protected open fun moviesParse(response: Response): ContentPage = unsupported(CatalogCapability.MOVIES)
 
-    override suspend fun getSeries(page: Int): ContentPage {
-        return client.awaitSuccess(seriesRequest(page)).use(::seriesParse)
-    }
+    override suspend fun getSeries(request: PageRequest): ContentPage =
+        execute(seriesRequest(request), ::seriesParse)
 
-    protected abstract fun seriesRequest(page: Int): Request
-    protected abstract fun seriesParse(response: Response): ContentPage
+    protected open fun seriesRequest(request: PageRequest): Request = unsupported(CatalogCapability.SERIES)
+    protected open fun seriesParse(response: Response): ContentPage = unsupported(CatalogCapability.SERIES)
 
-    override suspend fun search(page: Int, query: String, filters: FilterList): ContentPage {
-        return client.awaitSuccess(searchRequest(page, query, filters)).use(::searchParse)
-    }
+    override suspend fun getPopular(request: PageRequest): ContentPage =
+        execute(popularRequest(request), ::popularParse)
 
-    protected abstract fun searchRequest(page: Int, query: String, filters: FilterList): Request
-    protected abstract fun searchParse(response: Response): ContentPage
+    protected open fun popularRequest(request: PageRequest): Request = unsupported(CatalogCapability.POPULAR)
+    protected open fun popularParse(response: Response): ContentPage = unsupported(CatalogCapability.POPULAR)
 
-    override suspend fun getDetails(content: SContent): SContent {
-        return client.awaitSuccess(contentDetailsRequest(content)).use { response ->
-            contentDetailsParse(response).apply { initialized = true }
-        }
-    }
+    override suspend fun getLatest(request: PageRequest): ContentPage =
+        execute(latestRequest(request), ::latestParse)
+
+    protected open fun latestRequest(request: PageRequest): Request = unsupported(CatalogCapability.LATEST)
+    protected open fun latestParse(response: Response): ContentPage = unsupported(CatalogCapability.LATEST)
+
+    override suspend fun search(request: PageRequest, query: String, filters: FilterList): ContentPage =
+        execute(searchRequest(request, query, filters.requireValid()), ::searchParse)
+
+    protected open fun searchRequest(request: PageRequest, query: String, filters: FilterList): Request =
+        unsupported(CatalogCapability.SEARCH)
+
+    protected open fun searchParse(response: Response): ContentPage = unsupported(CatalogCapability.SEARCH)
+
+    override suspend fun getHomeSections(): List<HomeSection> =
+        execute(homeSectionsRequest(), ::homeSectionsParse)
+
+    protected open fun homeSectionsRequest(): Request = unsupported(CatalogCapability.HOME_SECTIONS)
+    protected open fun homeSectionsParse(response: Response): List<HomeSection> = unsupported(CatalogCapability.HOME_SECTIONS)
+
+    override suspend fun getSectionItems(section: HomeSection, request: PageRequest): ContentPage =
+        execute(sectionItemsRequest(section, request)) { sectionItemsParse(it, section) }
+
+    protected open fun sectionItemsRequest(section: HomeSection, request: PageRequest): Request =
+        unsupported(CatalogCapability.HOME_SECTIONS)
+
+    protected open fun sectionItemsParse(response: Response, section: HomeSection): ContentPage =
+        unsupported(CatalogCapability.HOME_SECTIONS)
+
+    override suspend fun getDetails(content: SContent): SContent =
+        execute(contentDetailsRequest(content), ::contentDetailsParse).copy(initialized = true)
 
     protected open fun contentDetailsRequest(content: SContent): Request = GET(getContentUrl(content), headers)
     protected abstract fun contentDetailsParse(response: Response): SContent
 
-    override suspend fun getPlayableItems(content: SContent): List<SPlayableItem> {
-        return client.awaitSuccess(playableItemsRequest(content)).use(::playableItemsParse)
-    }
+    override suspend fun getPlayableItems(content: SContent): List<SPlayableItem> =
+        execute(playableItemsRequest(content), ::playableItemsParse)
 
     protected open fun playableItemsRequest(content: SContent): Request = GET(getContentUrl(content), headers)
-    protected abstract fun playableItemsParse(response: Response): List<SPlayableItem>
+    protected open fun playableItemsParse(response: Response): List<SPlayableItem> =
+        unsupported(SourceCapability.PLAYABLE_ITEMS)
 
-    override suspend fun getSeasons(content: SContent): List<SSeason> {
-        return client.awaitSuccess(seasonsRequest(content)).use(::seasonsParse)
-    }
+    override suspend fun getSeasons(content: SContent): List<SSeason> =
+        execute(seasonsRequest(content), ::seasonsParse)
 
     protected open fun seasonsRequest(content: SContent): Request = GET(getContentUrl(content), headers)
-    protected open fun seasonsParse(response: Response): List<SSeason> = emptyList()
+    protected open fun seasonsParse(response: Response): List<SSeason> = unsupported(SourceCapability.SEASONS)
 
-    override suspend fun fetchRelatedContentList(content: SContent): List<SContent> {
-        return client.awaitSuccess(relatedContentRequest(content)).use(::relatedContentParse)
-    }
+    override suspend fun getPlayableItems(season: SSeason): List<SPlayableItem> =
+        season.playableItems ?: execute(seasonItemsRequest(season), { seasonItemsParse(it, season) })
 
-    protected open fun relatedContentRequest(content: SContent): Request = GET(getContentUrl(content), headers)
-    protected open fun relatedContentParse(response: Response): List<SContent> = emptyList()
+    protected open fun seasonItemsRequest(season: SSeason): Request = GET(absoluteUrl(season.url), headers)
+    protected open fun seasonItemsParse(response: Response, season: SSeason): List<SPlayableItem> =
+        unsupported(SourceCapability.SEASONS)
 
-    override suspend fun getHosters(item: SPlayableItem): List<SHoster> {
-        return client.awaitSuccess(hostersRequest(item)).use { response -> hostersParse(response).sortHosters() }
-    }
+    override suspend fun getRelated(content: SContent): List<SContent> =
+        if (SourceCapability.RELATED_CONTENT in sourceCapabilities) {
+            val direct = execute(relatedRequest(content), ::relatedParse)
+            if (direct.isNotEmpty() || SourceCapability.RELATED_SEARCH !in sourceCapabilities) {
+                direct
+            } else {
+                super<SymeraCatalogSource>.getRelated(content)
+            }
+        } else {
+            super<SymeraCatalogSource>.getRelated(content)
+        }
+
+    protected open fun relatedRequest(content: SContent): Request = GET(getContentUrl(content), headers)
+    protected open fun relatedParse(response: Response): List<SContent> = unsupported(SourceCapability.RELATED_CONTENT)
+
+    override suspend fun getStreams(item: SPlayableItem): List<SStream> =
+        execute(itemStreamsRequest(item)) { itemStreamsParse(it, item) }.sortStreams()
+
+    protected open fun itemStreamsRequest(item: SPlayableItem): Request = GET(getPlayableItemUrl(item), headers)
+    protected open fun itemStreamsParse(response: Response, item: SPlayableItem): List<SStream> =
+        unsupported(SourceCapability.ITEM_STREAMS)
+
+    override suspend fun getHosters(item: SPlayableItem): List<SHoster> =
+        execute(hostersRequest(item), ::hostersParse).sortHosters()
 
     protected open fun hostersRequest(item: SPlayableItem): Request = GET(getPlayableItemUrl(item), headers)
-    protected abstract fun hostersParse(response: Response): List<SHoster>
+    protected open fun hostersParse(response: Response): List<SHoster> = unsupported(SourceCapability.HOSTERS)
 
-    override suspend fun getStreams(hoster: SHoster): List<SStream> {
-        val streams = hoster.streamList ?: client.awaitSuccess(streamsRequest(hoster)).use { response -> streamsParse(response, hoster) }
-        return streams.sortStreams()
-    }
+    override suspend fun getStreams(hoster: SHoster): List<SStream> =
+        (hoster.streams ?: execute(streamsRequest(hoster), { streamsParse(it, hoster) })).sortStreams()
 
-    protected open fun streamsRequest(hoster: SHoster): Request = GET(hoster.hosterUrl, headers)
-    protected abstract fun streamsParse(response: Response, hoster: SHoster): List<SStream>
+    protected open fun streamsRequest(hoster: SHoster): Request =
+        GET(hoster.requestUrl?.let(::absoluteUrl) ?: unsupported(SourceCapability.HOSTERS), headers)
 
-    open suspend fun resolveStream(stream: SStream): SStream? = stream
+    protected open fun streamsParse(response: Response, hoster: SHoster): List<SStream> =
+        unsupported(SourceCapability.HOSTERS)
 
     open fun getContentUrl(content: SContent): String = absoluteUrl(content.url)
-
     open fun getPlayableItemUrl(item: SPlayableItem): String = absoluteUrl(item.url)
-
     open fun List<SHoster>.sortHosters(): List<SHoster> = this
-
     open fun List<SStream>.sortStreams(): List<SStream> = this
-
-    fun SContent.setUrlWithoutDomain(url: String) {
-        this.url = getUrlWithoutDomain(url)
-    }
-
-    fun SPlayableItem.setUrlWithoutDomain(url: String) {
-        this.url = getUrlWithoutDomain(url)
-    }
-
     override fun getFilterList(): FilterList = FilterList()
+    override fun toString(): String = "$name (${lang.uppercase(Locale.ROOT)})"
 
-    override fun toString(): String = "$name (${lang.uppercase()})"
+    fun contentWithRelativeUrl(content: SContent, url: String): SContent = content.copy(url = relativeUrl(url))
+    fun itemWithRelativeUrl(item: SPlayableItem, url: String): SPlayableItem = item.copy(url = relativeUrl(url))
 
     protected fun generateId(name: String, lang: String, versionId: Int): Long {
-        val key = "${name.lowercase()}/$lang/$versionId"
-        val bytes = MessageDigest.getInstance("MD5").digest(key.toByteArray())
-        return (0..7)
-            .map { (bytes[it].toLong() and 0xff) shl (8 * (7 - it)) }
-            .reduce(Long::or) and Long.MAX_VALUE
+        return SourceIdGenerator.generate(name, lang, versionId)
     }
 
-    private fun absoluteUrl(url: String): String {
-        return if (url.startsWith("http://") || url.startsWith("https://")) url else baseUrl.trimEnd('/') + "/" + url.trimStart('/')
+    protected fun absoluteUrl(reference: String): String {
+        val absolute = runCatching { reference.toHttpUrl() }.getOrNull()
+        if (absolute != null) return absolute.toString()
+        return requireNotNull(baseUrl.toHttpUrl().resolve(reference)) { "Cannot resolve URL reference: $reference" }.toString()
     }
 
-    private fun getUrlWithoutDomain(original: String): String {
-        return try {
-            val uri = URI(original)
-            buildString {
-                append(uri.path)
-                uri.query?.let { append('?').append(it) }
-                uri.fragment?.let { append('#').append(it) }
-            }
-        } catch (_: URISyntaxException) {
-            original
+    protected fun relativeUrl(url: String): String {
+        val parsed = url.toHttpUrl()
+        return buildString {
+            append(parsed.encodedPath)
+            parsed.encodedQuery?.let { append('?').append(it) }
+            parsed.encodedFragment?.let { append('#').append(it) }
         }
     }
 
-    companion object {
-        const val DEFAULT_USER_AGENT = "Symera/1.0"
+    protected suspend fun <T> execute(request: Request, parse: (Response) -> T): T =
+        client.awaitSuccess(request).use { response ->
+            withContext(Dispatchers.IO) { parse(response) }
+        }
 
-        private val fallbackClient: OkHttpClient = OkHttpClient.Builder().build()
-
-        @Volatile
-        var defaultClientProvider: () -> OkHttpClient = { fallbackClient }
-
-        @Volatile
-        var defaultCloudflareClientProvider: () -> OkHttpClient = { defaultClientProvider() }
-
-        @Volatile
-        var defaultUserAgentProvider: () -> String = { DEFAULT_USER_AGENT }
-    }
+    private fun unsupported(capability: org.symera.source.SymeraCapability): Nothing =
+        throw SourceException.UnsupportedCapability(capability)
 }
