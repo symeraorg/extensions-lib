@@ -1,26 +1,39 @@
 package org.symera.source
 
-interface SourcePreferenceProvider {
-    fun getString(sourceId: Long, key: String, default: String): String = default
-    fun getBoolean(sourceId: Long, key: String, default: Boolean): Boolean = default
-    fun getStringSet(sourceId: Long, key: String, default: Set<String>): Set<String> = default
+import kotlinx.coroutines.flow.Flow
+
+/** Host-owned storage already scoped to one extension-defined namespace. */
+interface SourcePreferenceStore {
+    fun getString(key: String, default: String): String
+    fun getSecret(key: String, default: String): String
+    fun getBoolean(key: String, default: Boolean): Boolean
+    fun getLong(key: String, default: Long): Long
+    fun getStringSet(key: String, default: Set<String>): Set<String>
+
+    suspend fun putString(key: String, value: String)
+    suspend fun putSecret(key: String, value: String)
+    suspend fun putBoolean(key: String, value: Boolean)
+    suspend fun putLong(key: String, value: Long)
+    suspend fun putStringSet(key: String, value: Set<String>)
+    suspend fun remove(key: String)
+
+    fun observeChanges(): Flow<String>
 }
 
-object SourcePreferenceStore {
-    @Volatile
-    var provider: SourcePreferenceProvider = object : SourcePreferenceProvider {}
-
-    fun forSource(source: SymeraSource): SourcePreferenceValues = SourcePreferenceValues(source.id)
-}
-
-class SourcePreferenceValues internal constructor(
-    private val sourceId: Long,
+class SourcePreferenceValues(
+    private val store: SourcePreferenceStore,
 ) {
-    fun getString(key: String, default: String): String = SourcePreferenceStore.provider.getString(sourceId, key, default)
+    fun getString(key: String, default: String = ""): String = store.getString(key, default)
+    fun getSecret(key: String, default: String = ""): String = store.getSecret(key, default)
+    fun getBoolean(key: String, default: Boolean = false): Boolean = store.getBoolean(key, default)
+    fun getLong(key: String, default: Long = 0): Long = store.getLong(key, default)
+    fun getStringSet(key: String, default: Set<String> = emptySet()): Set<String> = store.getStringSet(key, default)
 
-    fun getBoolean(key: String, default: Boolean): Boolean = SourcePreferenceStore.provider.getBoolean(sourceId, key, default)
-
-    fun getStringSet(key: String, default: Set<String>): Set<String> = SourcePreferenceStore.provider.getStringSet(sourceId, key, default)
+    suspend fun putString(key: String, value: String) = store.putString(key, value)
+    suspend fun putSecret(key: String, value: String) = store.putSecret(key, value)
+    suspend fun putBoolean(key: String, value: Boolean) = store.putBoolean(key, value)
+    suspend fun putLong(key: String, value: Long) = store.putLong(key, value)
+    suspend fun putStringSet(key: String, value: Set<String>) = store.putStringSet(key, value)
+    suspend fun remove(key: String) = store.remove(key)
+    fun observeChanges(): Flow<String> = store.observeChanges()
 }
-
-fun SymeraSource.preferenceValues(): SourcePreferenceValues = SourcePreferenceStore.forSource(this)
