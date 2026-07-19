@@ -4,13 +4,12 @@ The extension describes a media resource. The host owns Media3 objects, HTTP dat
 
 ## Stream Types
 
-`SStream` is a sealed interface with three implementations:
+`SStream` is a sealed interface with two implementations:
 
 | Type | Resolution | Use Case |
 |---|---|---|
 | `PlayableStream` | Fully resolved | Direct stream with URI, protocol, hints, DRM, tracks |
 | `DeferredStream` | Lazy | Resolver data for host-driven resolution |
-| `CustomStream` | Escape hatch | Versioned transport not in the SDK |
 
 ### SStream hierarchy
 
@@ -41,17 +40,7 @@ data class DeferredStream(
     val preferred: Boolean = false,
 ) : SStream
 
-data class CustomStream(
-    val id: String,
-    val typeId: String,
-    val payload: Map<String, String>,
-    val fallback: PlayableStream? = null,
-    val title: String? = null,
-    val preferred: Boolean = false,
-) : SStream
 ```
-
-`typeId` must match `[A-Za-z][A-Za-z0-9_.-]*`. Unknown types without a fallback are reported as unsupported.
 
 ### Hoster
 

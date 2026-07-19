@@ -8,6 +8,19 @@ import org.junit.Test
 
 class IptvSessionServicesTest {
     @Test
+    fun credentialsAndPlaybackRequestsRedactSecrets() {
+        val credentials = IptvCredentials(mapOf("password" to "super-secret"))
+        assertTrue("super-secret" !in credentials.toString())
+
+        val request = IptvPlaybackRequest(
+            URI("https://example.com/live.m3u8?token=super-secret"),
+            headers = mapOf("Authorization" to "super-secret"),
+            authorizationHandle = IptvAuthorizationHandle("super-secret", setOf("https://example.com")),
+        )
+        assertTrue("super-secret" !in request.toString())
+    }
+
+    @Test
     fun minimalProviderComposesOnlyChannelsAndLivePlayback() = runBlocking {
         val channel = IptvChannel("one", "One")
         val playback = IptvPlaybackRequest(URI("https://example.com/live.m3u8"), IptvStreamProtocol.HLS)

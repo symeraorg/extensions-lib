@@ -39,7 +39,7 @@ interface SourceEnvironment {
     val localFileSystem: LocalSourceFileSystem?
         get() = null
 
-    /** Optional extraction WebView factory; browser challenge UI remains a separate host concern. */
+    /** Optional host-owned JavaScript executor; browser challenge UI remains a separate host concern. */
     val javaScriptEngineFactory: JavaScriptEngineFactory?
         get() = null
 

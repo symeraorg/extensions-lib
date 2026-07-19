@@ -54,26 +54,7 @@ class CompositeIptvSession(
 
 Thread-safe via `AtomicBoolean`. All operations return `IptvError.Cancelled` after `close()`. Provider adapters implement this class and expose only the services they support.
 
-## ConfiguredIptvSource
-
-Ready-to-use implementation for playlist URLs and individually configured channels.
-
-### Components
-
-`ConfiguredIptvComponents` makes every strategy injectable:
-
-| Component | Default | Purpose |
-|---|---|---|
-| `playlistParser` | `ExtendedM3uParser` | Parse M3U/M3U8 playlists |
-| `epgParser` | `XmlTvParser` | Parse XMLTV EPG |
-| `channelIdentity` | `entry.channel.id` | Generate stable channel IDs |
-| `catalogMerger` | `FirstWinsIptvCatalogMerger` | Merge multiple playlist parts |
-| `epgMatcher` | match by `epgId` or `channel.id` | Associate EPG data with channels |
-| `catchUpResolver` | `TemplateIptvCatchUpResolver` | Resolve catch-up archive URLs |
-| `timeshiftResolver` | `WindowIptvTimeshiftResolver` | Validate timeshift offsets |
-| `clock` | `IptvClock.SYSTEM` | Current time provider |
-
-Extensions replace only the components they need without overriding a monolithic session class.
+## Playlist Parsing
 
 ### ExtendedM3uParser
 
@@ -95,20 +76,9 @@ Catch-up requests never inherit static headers, referrer, User-Agent, or dynamic
 
 Playlist, EPG, image, referrer, and license resources require HTTP(S) URIs. RTSP/RTP/UDP are accepted only for matching playback protocols.
 
+User-entered playlist loading, authentication, catalog merging, persistence, and source/session orchestration are host responsibilities. Provider extensions use the core authentication descriptors and normalize provider behavior into these contracts.
+
 ## Authentication
-
-`ConfiguredIptvAuthenticator` owns both the UI descriptor and generated transport headers.
-
-### Built-in Factories
-
-| Factory | Scheme | Fields | Headers |
-|---|---|---|---|
-| `none()` | NONE | — | — |
-| `httpBasic(usernameKey, passwordKey, allowedOrigins?)` | HTTP_BASIC | username (TEXT), password (SECRET) | `Authorization: Basic <credentials>` |
-| `bearerToken(tokenKey, allowedOrigins?)` | BEARER_TOKEN | token (SECRET) | `Authorization: Bearer <token>` |
-| `apiKey(headerName, credentialKey, allowedOrigins?)` | API_KEY | apiKey (SECRET) | `<headerName>: <key>` |
-
-Generated headers are scoped to the canonical origin of the configuration's resource URIs (or explicit `allowedOrigins`). Cross-origin EPG does not receive credentials. Static location headers override authenticator headers. Secret header references override both.
 
 ### Dynamic Authorization
 

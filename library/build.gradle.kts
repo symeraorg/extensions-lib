@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JavaToolchainService
 import java.util.zip.ZipFile
 
 plugins {
@@ -105,7 +107,13 @@ fun renderPublicApi(outputFile: File) {
             .sorted()
             .toList()
     }
-    val executable = File(System.getProperty("java.home"), "bin/javap${if (System.getProperty("os.name").startsWith("Windows")) ".exe" else ""}")
+    val toolchains = project.extensions.getByType(JavaToolchainService::class.java)
+    val java21 = toolchains.launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }.get()
+    val executable = java21.metadata.installationPath.file(
+        "bin/javap${if (System.getProperty("os.name").startsWith("Windows")) ".exe" else ""}",
+    ).asFile
     val process = ProcessBuilder(
         listOf(executable.absolutePath, "-protected", "-s", "-constants", "-classpath", classesJar.absolutePath) + classNames,
     ).redirectErrorStream(true).start()

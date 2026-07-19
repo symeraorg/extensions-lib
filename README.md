@@ -34,17 +34,28 @@ Host (Symera app)
 
 ### Entry Point
 
-Manifest metadata declares the factory class:
+Each extension exposes exactly one disabled marker service. Its intent filter makes the package visible to the host without `QUERY_ALL_PACKAGES`; its metadata declares the factory:
 
 ```xml
 <uses-feature android:name="symera.extension" android:required="false" />
 <application>
-    <meta-data android:name="symera.extension.factory" android:value="com.example.MyExtensionFactory" />
-    <meta-data android:name="symera.extension.sdk" android:value="3" />
+    <service
+        android:name=".SymeraExtensionMarkerService"
+        android:enabled="false"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="symera.extension" />
+        </intent-filter>
+        <meta-data android:name="symera.extension.factory" android:value="com.example.MyExtensionFactory" />
+        <meta-data android:name="symera.extension.sdk" android:value="3" />
+        <meta-data android:name="symera.extension.nsfw" android:value="false" />
+    </service>
 </application>
 ```
 
-The class must be a Kotlin `object` or have a public no-argument constructor. R8 rules for extension projects:
+`SymeraExtensionMarkerService` is an extension-owned `Service` whose `onBind` returns null. It is never started or bound; disabling it makes its public metadata queryable while preventing invocation. Factory metadata on `<application>` is not a discovery contract.
+
+The factory class must be a Kotlin `object` or have a public no-argument constructor. R8 rules for extension projects:
 
 ```proguard
 -keep class * implements org.symera.source.SymeraExtensionFactory {
@@ -172,9 +183,9 @@ IptvSessionServices(
 
 `IptvPlaybackServices` dispatches to live, catch-up, or timeshift resolvers based on intent mode. Each resolver returns an `IptvPlaybackRequest` with URI, protocol, headers, and DRM.
 
-### ConfiguredIptvSource
+### Playlist parsers
 
-Ready-to-use implementation for user-entered playlist URLs. Components are injectable via `ConfiguredIptvComponents`: playlist parser, channel identity, catalog merger, EPG matcher, catch-up resolver, timeshift resolver, clock. Authentication via `ConfiguredIptvAuthenticator` (built-in: none, HTTP Basic, Bearer, API key).
+`ExtendedM3uParser` and `XmlTvParser` are reusable extension tools. User-entered playlist loading, authentication, persistence, merging, and session orchestration belong to the host app and are intentionally not part of the extension SDK.
 
 See [docs/IPTV.md](docs/IPTV.md).
 
@@ -194,19 +205,19 @@ Host-provided infrastructure injected into every source:
 | `logger` | `SourceLogger` | Debug/warning/error logging |
 | `webChallengeInterceptorFactory` | `WebChallengeInterceptorFactory?` | Optional challenge interceptor |
 | `localFileSystem` | `LocalSourceFileSystem?` | Optional local file access |
-| `javaScriptEngineFactory` | `JavaScriptEngineFactory?` | Optional JS extraction |
+| `javaScriptEngineFactory` | `JavaScriptEngineFactory?` | Optional host-owned JS execution abstraction |
 
 `LocalSourceFileSystem` interface: `requireBaseDirectory`, `getFilesInBaseDirectory`, `getContentDirectories`, `getContentDirectory(name)`, `walk(dir, maxDepth, maxEntries)`, `getPlayableFiles(dir, extensions, maxDepth, maxEntries)`, `getSidecarSubtitles(video)`.
 
 ## Local Storage
 
-`LocalMediaDefaults` provides defaults: `MAXIMUM_DEPTH = 8`, `MAXIMUM_ENTRIES = 100_000`, standard video/subtitle extensions. `LocalSymeraSourceFileSystem` implements `LocalSourceFileSystem` using `UniFile` and `Dispatchers.IO`.
+`LocalMediaDefaults` provides defaults: `MAXIMUM_DEPTH = 8`, `MAXIMUM_ENTRIES = 100_000`, standard video/subtitle extensions. The host supplies the `LocalSourceFileSystem` implementation and owns SAF permissions and traversal policy.
 
 ## Quality
 
 - Kotlin warnings are build errors.
 - `checkPublicApi` compares the release AAR against the reviewed `api/extensions-lib.api` ABI snapshot.
-- Unit tests cover VOD capabilities, mutable filters, composed IPTV, M3U, XMLTV/XXE, catch-up credential scoping, authentication, URI policy, and BitTorrent v1/v2.
+- Unit tests cover VOD capabilities, mutable filters, composed IPTV, M3U, XMLTV/XXE, catch-up credential scoping, URI policy, secret redaction, and BitTorrent v1/v2.
 - HTTP coroutine cancellation cancels the underlying OkHttp call.
 - XMLTV parsing disables external entities and DTD loading.
 

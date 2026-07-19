@@ -218,23 +218,6 @@ data class PlayableStream(
     }
 }
 
-/** Versioned host/extension escape hatch for transports introduced after this SDK release. */
-data class CustomStream(
-    override val id: String,
-    val typeId: String,
-    val payload: Map<String, String>,
-    val fallback: PlayableStream? = null,
-    override val title: String? = null,
-    override val preferred: Boolean = false,
-) : SStream {
-    init {
-        require(id.isNotBlank()) { "Stream ID cannot be blank" }
-        require(typeId.matches(Regex("[A-Za-z][A-Za-z0-9_.-]*"))) { "Invalid custom stream type ID" }
-        require(payload.keys.none(String::isBlank)) { "Custom stream payload keys cannot be blank" }
-        require(title == null || title.isNotBlank()) { "Stream title cannot be blank" }
-    }
-}
-
 data class SHoster(
     val id: String,
     val name: String,

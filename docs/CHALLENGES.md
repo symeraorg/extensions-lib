@@ -66,7 +66,7 @@ POST requests are retried only when `retryPolicy` permits and bodies are not one
 - Third-party cookies enabled only for the challenge session when necessary.
 - `onRenderProcessGone` destroys the WebView and fails all waiting operations.
 
-`JavaScriptEngine` is a separate extraction tool. It must not be used as an invisible challenge coordinator.
+`JavaScriptEngine` is a separate host-provided extraction abstraction. The SDK supplies no WebView implementation, and the abstraction must not be used as an invisible challenge coordinator.
 
 ## Cloudflare Limitations
 
