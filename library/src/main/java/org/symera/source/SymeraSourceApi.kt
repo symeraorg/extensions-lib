@@ -1,8 +1,8 @@
 package org.symera.source
 
 object SymeraSourceApi {
-    const val CURRENT_VERSION = 3
-    const val MIN_SUPPORTED_VERSION = 3
+    const val CURRENT_VERSION = 4
+    const val MIN_SUPPORTED_VERSION = 4
 }
 
 object SymeraExtensionMetadata {

@@ -7,6 +7,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.symera.source.model.ContentPage
 import org.symera.source.model.ContentType
+import org.symera.source.model.FilterList
 import org.symera.source.model.PageRequest
 import org.symera.source.model.SContent
 
@@ -41,7 +42,7 @@ class CatalogCapabilitiesTest {
         override val contentTypes = setOf(ContentType.SERIES)
         override val catalogCapabilities = setOf(CatalogCapability.LATEST)
 
-        override suspend fun getLatest(request: PageRequest): ContentPage =
+        override suspend fun getLatest(request: PageRequest, filters: FilterList): ContentPage =
             ContentPage(listOf(SContent("/latest", "Latest")), false)
 
         override suspend fun getDetails(content: SContent): SContent = content

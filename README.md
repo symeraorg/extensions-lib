@@ -1,9 +1,8 @@
 # Symera Extensions SDK
 
 Contracts and implementation tools for Symera VOD and IPTV extensions.
-Each extension decides which catalog, parsing, authentication, playback, local, or torrent tools it needs.
 
-**API version:** 3 · **Release:** 3.0.2
+**API version:** 4 · **Release:** 4.0.0
 
 ## Dependency
 
@@ -13,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.github.symeraorg:extensions-lib:3.0.2")
+    compileOnly("com.github.symeraorg:extensions-lib:4.0.0")
 }
 ```
 
@@ -34,7 +33,7 @@ Host (Symera app)
 
 ### Entry Point
 
-Each extension exposes exactly one disabled marker service. Its intent filter makes the package visible to the host without `QUERY_ALL_PACKAGES`; its metadata declares the factory:
+Each extension exposes one disabled marker service with an intent filter and factory metadata:
 
 ```xml
 <uses-feature android:name="symera.extension" android:required="false" />
@@ -47,13 +46,11 @@ Each extension exposes exactly one disabled marker service. Its intent filter ma
             <action android:name="symera.extension" />
         </intent-filter>
         <meta-data android:name="symera.extension.factory" android:value="com.example.MyExtensionFactory" />
-        <meta-data android:name="symera.extension.sdk" android:value="3" />
+        <meta-data android:name="symera.extension.sdk" android:value="4" />
         <meta-data android:name="symera.extension.nsfw" android:value="false" />
     </service>
 </application>
 ```
-
-`SymeraExtensionMarkerService` is an extension-owned `Service` whose `onBind` returns null. It is never started or bound; disabling it makes its public metadata queryable while preventing invocation. Factory metadata on `<application>` is not a discovery contract.
 
 The factory class must be a Kotlin `object` or have a public no-argument constructor. R8 rules for extension projects:
 
@@ -97,7 +94,7 @@ Extends `SymeraSource` with browsing feeds. `catalogCapabilities: Set<CatalogCap
 | `SEARCH` | `search(PageRequest, query, filters)` |
 | `HOME_SECTIONS` | `getHomeSections()` + `getSectionItems(section, PageRequest)` |
 
-`getFilterList()` returns available filters for search. Default: empty.
+`getFilterList(feed)` and `getFilterList(section)` return the independent schema for each destination. Default: empty.
 
 ### Playback Flow
 
@@ -152,15 +149,17 @@ Keys must be unique across all filters. `FilterList` constructor calls `requireV
 
 `enabledWhen: PreferenceCondition?` supports `BooleanValue`, `StringValue`, `StringSetContains`, `LongValue`, `IsNotBlank`, `All`, `Any`, `Not`. Dependency cycles are rejected.
 
-`SourceEnvironment.preferencesFor(namespace)` returns a `SourcePreferenceValues` store.
+`ConfigurableSymeraSource.sourcePreferenceNamespace` binds its schema to the `SourceEnvironment.preferencesFor(namespace)` store. The default is `source.<stable source id>`; overrides must remain stable and use only ASCII letters, digits, `.`, `_`, or `-`.
 
 ## Challenges
 
-Extensions implement `WebChallengeSource` to declare challenge policy. The host supplies `SourceEnvironment.webChallengeInterceptorFactory`; `SymeraHttpSource` installs only the interceptor returned by that factory. Implementing `WebChallengeSource` alone does not install challenge behavior.
+Extensions implement `WebChallengeSource` to declare challenge policy. The host supplies the interceptor through `SourceEnvironment.webChallengeInterceptorFactory`; `SymeraHttpSource` installs it automatically.
 
-`CloudflareChallengeDetector` detects challenges via `cf-mitigated: challenge` header, or HTTP 403/503 + Cloudflare server + HTML markers. Throws `WebChallengeRequiredException`.
+Challenge detection, response handling, WebView, cookies, coordination, and retries are handled entirely by the host.
 
 See [docs/CHALLENGES.md](docs/CHALLENGES.md).
+
+For a visible browser opened explicitly by the user, implement `InteractiveBrowserSource`. Its `InteractiveBrowserRequest` declares one HTTPS entry URL and up to 16 additional HTTPS top-level origins.
 
 ## IPTV
 
@@ -183,15 +182,15 @@ IptvSessionServices(
 
 `IptvPlaybackServices` dispatches to live, catch-up, or timeshift resolvers based on intent mode. Each resolver returns an `IptvPlaybackRequest` with URI, protocol, headers, and DRM.
 
-### Playlist parsers
+### Playlist Parsers
 
-`ExtendedM3uParser` and `XmlTvParser` are reusable extension tools. User-entered playlist loading, authentication, persistence, merging, and session orchestration belong to the host app and are intentionally not part of the extension SDK.
+`ExtendedM3uParser` and `XmlTvParser` are reusable extension tools. Playlist loading, authentication, persistence, merging, and session orchestration belong to the host app.
 
 See [docs/IPTV.md](docs/IPTV.md).
 
 ## Torrent
 
-Pure bencode parsing, BitTorrent v1/v2/hybrid metainfo, `btih`/`btmh` magnets, BEP 53 file selection, trackers, web seeds, and size-limited HTTP loading. Magnet parsing never fabricates a file list or size. Authenticated `.torrent` requests accept an OkHttp `Request`; redirects drop extension headers on origin change and reject HTTPS downgrade.
+Bencode parsing, BitTorrent v1/v2/hybrid metainfo, `btih`/`btmh` magnets, BEP 53 file selection, trackers, web seeds, and size-limited HTTP loading. Magnet parsing never fabricates a file list or size. Authenticated `.torrent` requests accept an OkHttp `Request`; redirects drop extension headers on origin change and reject HTTPS downgrade.
 
 ## SourceEnvironment
 

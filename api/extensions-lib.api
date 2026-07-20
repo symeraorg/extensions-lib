@@ -3,6 +3,9 @@ public interface org.symera.source.ActionableSymeraSource extends org.symera.sou
   public abstract java.lang.Object onPreferenceAction(java.lang.String, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     descriptor: (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
+  public static java.lang.String access$getSourcePreferenceNamespace$jd(org.symera.source.ActionableSymeraSource);
+    descriptor: (Lorg/symera/source/ActionableSymeraSource;)Ljava/lang/String;
+
   public static java.util.List access$getSourcePreferences$jd(org.symera.source.ActionableSymeraSource);
     descriptor: (Lorg/symera/source/ActionableSymeraSource;)Ljava/util/List;
 
@@ -38,6 +41,9 @@ public interface org.symera.source.ActionableSymeraSource extends org.symera.sou
 }
 Compiled from "ConfigurableSymeraSource.kt"
 public final class org.symera.source.ActionableSymeraSource$DefaultImpls {
+  public static java.lang.String getSourcePreferenceNamespace(org.symera.source.ActionableSymeraSource);
+    descriptor: (Lorg/symera/source/ActionableSymeraSource;)Ljava/lang/String;
+
   public static java.util.List<org.symera.source.model.SourcePreference<?>> getSourcePreferences(org.symera.source.ActionableSymeraSource);
     descriptor: (Lorg/symera/source/ActionableSymeraSource;)Ljava/util/List;
 
@@ -94,13 +100,40 @@ public final class org.symera.source.CatalogCapability extends java.lang.Enum<or
   public static kotlin.enums.EnumEntries<org.symera.source.CatalogCapability> getEntries();
     descriptor: ()Lkotlin/enums/EnumEntries;
 }
+Compiled from "SymeraCatalogSource.kt"
+public final class org.symera.source.CatalogFeed extends java.lang.Enum<org.symera.source.CatalogFeed> {
+  public static final org.symera.source.CatalogFeed MOVIES;
+    descriptor: Lorg/symera/source/CatalogFeed;
+  public static final org.symera.source.CatalogFeed SERIES;
+    descriptor: Lorg/symera/source/CatalogFeed;
+  public static final org.symera.source.CatalogFeed POPULAR;
+    descriptor: Lorg/symera/source/CatalogFeed;
+  public static final org.symera.source.CatalogFeed LATEST;
+    descriptor: Lorg/symera/source/CatalogFeed;
+  public static final org.symera.source.CatalogFeed SEARCH;
+    descriptor: Lorg/symera/source/CatalogFeed;
+  public static org.symera.source.CatalogFeed[] values();
+    descriptor: ()[Lorg/symera/source/CatalogFeed;
+
+  public static org.symera.source.CatalogFeed valueOf(java.lang.String);
+    descriptor: (Ljava/lang/String;)Lorg/symera/source/CatalogFeed;
+
+  public static kotlin.enums.EnumEntries<org.symera.source.CatalogFeed> getEntries();
+    descriptor: ()Lkotlin/enums/EnumEntries;
+}
 Compiled from "ConfigurableSymeraSource.kt"
 public interface org.symera.source.ConfigurableSymeraSource extends org.symera.source.SymeraSource {
+  public default java.lang.String getSourcePreferenceNamespace();
+    descriptor: ()Ljava/lang/String;
+
   public default java.util.List<org.symera.source.model.SourcePreference<?>> getSourcePreferences();
     descriptor: ()Ljava/util/List;
 
   public default java.util.List<org.symera.source.model.SourcePreference<?>> validatedSourcePreferences();
     descriptor: ()Ljava/util/List;
+
+  public static java.lang.String access$getSourcePreferenceNamespace$jd(org.symera.source.ConfigurableSymeraSource);
+    descriptor: (Lorg/symera/source/ConfigurableSymeraSource;)Ljava/lang/String;
 
   public static java.util.List access$getSourcePreferences$jd(org.symera.source.ConfigurableSymeraSource);
     descriptor: (Lorg/symera/source/ConfigurableSymeraSource;)Ljava/util/List;
@@ -137,6 +170,9 @@ public interface org.symera.source.ConfigurableSymeraSource extends org.symera.s
 }
 Compiled from "ConfigurableSymeraSource.kt"
 public final class org.symera.source.ConfigurableSymeraSource$DefaultImpls {
+  public static java.lang.String getSourcePreferenceNamespace(org.symera.source.ConfigurableSymeraSource);
+    descriptor: (Lorg/symera/source/ConfigurableSymeraSource;)Ljava/lang/String;
+
   public static java.util.List<org.symera.source.model.SourcePreference<?>> getSourcePreferences(org.symera.source.ConfigurableSymeraSource);
     descriptor: (Lorg/symera/source/ConfigurableSymeraSource;)Ljava/util/List;
 
@@ -373,6 +409,15 @@ public final class org.symera.source.SourceLogger$DefaultImpls {
   public static void error$default(org.symera.source.SourceLogger, java.lang.String, java.lang.Throwable, int, java.lang.Object);
     descriptor: (Lorg/symera/source/SourceLogger;Ljava/lang/String;Ljava/lang/Throwable;ILjava/lang/Object;)V
 }
+Compiled from "ConfigurableSymeraSource.kt"
+public final class org.symera.source.SourcePreferenceNamespace {
+  public static final org.symera.source.SourcePreferenceNamespace INSTANCE;
+    descriptor: Lorg/symera/source/SourcePreferenceNamespace;
+  public static final int MAXIMUM_LENGTH = 128;
+    descriptor: I
+  public final java.lang.String requireValid(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/lang/String;
+}
 Compiled from "SourcePreferenceStore.kt"
 public interface org.symera.source.SourcePreferenceStore {
   public abstract java.lang.String getString(java.lang.String, java.lang.String);
@@ -480,29 +525,47 @@ public interface org.symera.source.SymeraCatalogSource extends org.symera.source
   public abstract java.util.Set<org.symera.source.CatalogCapability> getCatalogCapabilities();
     descriptor: ()Ljava/util/Set;
 
-  public default java.lang.Object getMovies(org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public default org.symera.source.model.FilterList getFilterList(org.symera.source.CatalogFeed);
+    descriptor: (Lorg/symera/source/CatalogFeed;)Lorg/symera/source/model/FilterList;
 
-  public static java.lang.Object getMovies$suspendImpl(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public default org.symera.source.model.FilterList getFilterList(org.symera.source.model.HomeSection);
+    descriptor: (Lorg/symera/source/model/HomeSection;)Lorg/symera/source/model/FilterList;
 
-  public default java.lang.Object getSeries(org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public default java.lang.Object getMovies(org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  public static java.lang.Object getSeries$suspendImpl(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static java.lang.Object getMovies$suspendImpl(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  public default java.lang.Object getPopular(org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static java.lang.Object getMovies$default(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation, int, java.lang.Object);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 
-  public static java.lang.Object getPopular$suspendImpl(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public default java.lang.Object getSeries(org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  public default java.lang.Object getLatest(org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static java.lang.Object getSeries$suspendImpl(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  public static java.lang.Object getLatest$suspendImpl(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static java.lang.Object getSeries$default(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation, int, java.lang.Object);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+
+  public default java.lang.Object getPopular(org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getPopular$suspendImpl(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getPopular$default(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation, int, java.lang.Object);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+
+  public default java.lang.Object getLatest(org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getLatest$suspendImpl(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getLatest$default(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation, int, java.lang.Object);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 
   public default java.lang.Object search(org.symera.source.model.PageRequest, java.lang.String, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
     descriptor: (Lorg/symera/source/model/PageRequest;Ljava/lang/String;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -513,20 +576,20 @@ public interface org.symera.source.SymeraCatalogSource extends org.symera.source
   public static java.lang.Object search$default(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, java.lang.String, org.symera.source.model.FilterList, kotlin.coroutines.Continuation, int, java.lang.Object);
     descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Ljava/lang/String;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 
-  public default org.symera.source.model.FilterList getFilterList();
-    descriptor: ()Lorg/symera/source/model/FilterList;
-
   public default java.lang.Object getHomeSections(kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.HomeSection>>);
     descriptor: (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
   public static java.lang.Object getHomeSections$suspendImpl(org.symera.source.SymeraCatalogSource, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.HomeSection>>);
     descriptor: (Lorg/symera/source/SymeraCatalogSource;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  public default java.lang.Object getSectionItems(org.symera.source.model.HomeSection, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/model/HomeSection;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public default java.lang.Object getSectionItems(org.symera.source.model.HomeSection, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/model/HomeSection;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  public static java.lang.Object getSectionItems$suspendImpl(org.symera.source.SymeraCatalogSource, org.symera.source.model.HomeSection, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/HomeSection;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static java.lang.Object getSectionItems$suspendImpl(org.symera.source.SymeraCatalogSource, org.symera.source.model.HomeSection, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/HomeSection;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getSectionItems$default(org.symera.source.SymeraCatalogSource, org.symera.source.model.HomeSection, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation, int, java.lang.Object);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/HomeSection;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 
   public default java.lang.Object getRelated(org.symera.source.model.SContent, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.SContent>>);
     descriptor: (Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -540,29 +603,32 @@ public interface org.symera.source.SymeraCatalogSource extends org.symera.source
   public static java.lang.Object getRelatedBySearch$suspendImpl(org.symera.source.SymeraCatalogSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.SContent>>);
     descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  public static java.lang.Object access$getMovies$jd(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static org.symera.source.model.FilterList access$getFilterList$jd(org.symera.source.SymeraCatalogSource, org.symera.source.CatalogFeed);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/CatalogFeed;)Lorg/symera/source/model/FilterList;
 
-  public static java.lang.Object access$getSeries$jd(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static org.symera.source.model.FilterList access$getFilterList$jd(org.symera.source.SymeraCatalogSource, org.symera.source.model.HomeSection);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/HomeSection;)Lorg/symera/source/model/FilterList;
 
-  public static java.lang.Object access$getPopular$jd(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static java.lang.Object access$getMovies$jd(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  public static java.lang.Object access$getLatest$jd(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static java.lang.Object access$getSeries$jd(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object access$getPopular$jd(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object access$getLatest$jd(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
   public static java.lang.Object access$search$jd(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, java.lang.String, org.symera.source.model.FilterList, kotlin.coroutines.Continuation);
     descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Ljava/lang/String;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  public static org.symera.source.model.FilterList access$getFilterList$jd(org.symera.source.SymeraCatalogSource);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;)Lorg/symera/source/model/FilterList;
-
   public static java.lang.Object access$getHomeSections$jd(org.symera.source.SymeraCatalogSource, kotlin.coroutines.Continuation);
     descriptor: (Lorg/symera/source/SymeraCatalogSource;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  public static java.lang.Object access$getSectionItems$jd(org.symera.source.SymeraCatalogSource, org.symera.source.model.HomeSection, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/HomeSection;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static java.lang.Object access$getSectionItems$jd(org.symera.source.SymeraCatalogSource, org.symera.source.model.HomeSection, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/HomeSection;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
   public static java.lang.Object access$getRelated$jd(org.symera.source.SymeraCatalogSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation);
     descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -596,17 +662,35 @@ public interface org.symera.source.SymeraCatalogSource extends org.symera.source
 }
 Compiled from "SymeraCatalogSource.kt"
 public final class org.symera.source.SymeraCatalogSource$DefaultImpls {
-  public static java.lang.Object getMovies(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static org.symera.source.model.FilterList getFilterList(org.symera.source.SymeraCatalogSource, org.symera.source.CatalogFeed);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/CatalogFeed;)Lorg/symera/source/model/FilterList;
 
-  public static java.lang.Object getSeries(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static org.symera.source.model.FilterList getFilterList(org.symera.source.SymeraCatalogSource, org.symera.source.model.HomeSection);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/HomeSection;)Lorg/symera/source/model/FilterList;
 
-  public static java.lang.Object getPopular(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static java.lang.Object getMovies(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  public static java.lang.Object getLatest(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static java.lang.Object getMovies$default(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation, int, java.lang.Object);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+
+  public static java.lang.Object getSeries(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getSeries$default(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation, int, java.lang.Object);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+
+  public static java.lang.Object getPopular(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getPopular$default(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation, int, java.lang.Object);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+
+  public static java.lang.Object getLatest(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getLatest$default(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation, int, java.lang.Object);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 
   public static java.lang.Object search(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, java.lang.String, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
     descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Ljava/lang/String;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -614,14 +698,14 @@ public final class org.symera.source.SymeraCatalogSource$DefaultImpls {
   public static java.lang.Object search$default(org.symera.source.SymeraCatalogSource, org.symera.source.model.PageRequest, java.lang.String, org.symera.source.model.FilterList, kotlin.coroutines.Continuation, int, java.lang.Object);
     descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/PageRequest;Ljava/lang/String;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 
-  public static org.symera.source.model.FilterList getFilterList(org.symera.source.SymeraCatalogSource);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;)Lorg/symera/source/model/FilterList;
-
   public static java.lang.Object getHomeSections(org.symera.source.SymeraCatalogSource, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.HomeSection>>);
     descriptor: (Lorg/symera/source/SymeraCatalogSource;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  public static java.lang.Object getSectionItems(org.symera.source.SymeraCatalogSource, org.symera.source.model.HomeSection, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/HomeSection;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public static java.lang.Object getSectionItems(org.symera.source.SymeraCatalogSource, org.symera.source.model.HomeSection, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/HomeSection;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getSectionItems$default(org.symera.source.SymeraCatalogSource, org.symera.source.model.HomeSection, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation, int, java.lang.Object);
+    descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/HomeSection;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 
   public static java.lang.Object getRelated(org.symera.source.SymeraCatalogSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.SContent>>);
     descriptor: (Lorg/symera/source/SymeraCatalogSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -836,13 +920,102 @@ Compiled from "SymeraSourceApi.kt"
 public final class org.symera.source.SymeraSourceApi {
   public static final org.symera.source.SymeraSourceApi INSTANCE;
     descriptor: Lorg/symera/source/SymeraSourceApi;
-  public static final int CURRENT_VERSION = 3;
+  public static final int CURRENT_VERSION = 4;
     descriptor: I
-  public static final int MIN_SUPPORTED_VERSION = 3;
+  public static final int MIN_SUPPORTED_VERSION = 4;
     descriptor: I
 }
 Compiled from "UnmeteredSource.kt"
 public interface org.symera.source.UnmeteredSource {
+}
+Compiled from "InteractiveBrowserSource.kt"
+public final class org.symera.source.browser.InteractiveBrowserRequest {
+  public static final org.symera.source.browser.InteractiveBrowserRequest$Companion Companion;
+    descriptor: Lorg/symera/source/browser/InteractiveBrowserRequest$Companion;
+  public static final int MAXIMUM_ADDITIONAL_ORIGINS = 16;
+    descriptor: I
+  public static final int MAXIMUM_URL_LENGTH = 2048;
+    descriptor: I
+  public org.symera.source.browser.InteractiveBrowserRequest(okhttp3.HttpUrl, java.util.Collection<okhttp3.HttpUrl>);
+    descriptor: (Lokhttp3/HttpUrl;Ljava/util/Collection;)V
+
+  public org.symera.source.browser.InteractiveBrowserRequest(okhttp3.HttpUrl, java.util.Collection, int, kotlin.jvm.internal.DefaultConstructorMarker);
+    descriptor: (Lokhttp3/HttpUrl;Ljava/util/Collection;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+
+  public final okhttp3.HttpUrl getEntryUrl();
+    descriptor: ()Lokhttp3/HttpUrl;
+
+  public final java.util.Set<okhttp3.HttpUrl> getAdditionalAllowedTopLevelOrigins();
+    descriptor: ()Ljava/util/Set;
+
+  public final java.util.Set<okhttp3.HttpUrl> getAllowedTopLevelOrigins();
+    descriptor: ()Ljava/util/Set;
+}
+Compiled from "InteractiveBrowserSource.kt"
+public final class org.symera.source.browser.InteractiveBrowserRequest$Companion {
+  public org.symera.source.browser.InteractiveBrowserRequest$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
+    descriptor: (Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+Compiled from "InteractiveBrowserSource.kt"
+public interface org.symera.source.browser.InteractiveBrowserSource extends org.symera.source.SymeraSource {
+  public abstract org.symera.source.browser.InteractiveBrowserRequest interactiveBrowserRequest();
+    descriptor: ()Lorg/symera/source/browser/InteractiveBrowserRequest;
+
+  public static java.util.Set access$getSourceCapabilities$jd(org.symera.source.browser.InteractiveBrowserSource);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;)Ljava/util/Set;
+
+  public static java.lang.Object access$getPlayableItems$jd(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object access$getPlayableItems$jd(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SSeason, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SSeason;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object access$getSeasons$jd(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object access$getStreams$jd(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SPlayableItem, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SPlayableItem;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object access$getStreams$jd(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SHoster, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SHoster;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object access$getHosters$jd(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SPlayableItem, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SPlayableItem;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object access$getRelated$jd(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static org.symera.source.model.SPlayableItem access$prepareNewPlayableItem$jd(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SPlayableItem, org.symera.source.model.SContent);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SPlayableItem;Lorg/symera/source/model/SContent;)Lorg/symera/source/model/SPlayableItem;
+}
+Compiled from "InteractiveBrowserSource.kt"
+public final class org.symera.source.browser.InteractiveBrowserSource$DefaultImpls {
+  public static java.util.Set<org.symera.source.SourceCapability> getSourceCapabilities(org.symera.source.browser.InteractiveBrowserSource);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;)Ljava/util/Set;
+
+  public static java.lang.Object getPlayableItems(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.SPlayableItem>>);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getPlayableItems(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SSeason, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.SPlayableItem>>);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SSeason;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getSeasons(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.SSeason>>);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getStreams(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SPlayableItem, kotlin.coroutines.Continuation<? super java.util.List<? extends org.symera.source.model.SStream>>);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SPlayableItem;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getStreams(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SHoster, kotlin.coroutines.Continuation<? super java.util.List<? extends org.symera.source.model.SStream>>);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SHoster;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getHosters(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SPlayableItem, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.SHoster>>);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SPlayableItem;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getRelated(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.SContent>>);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static org.symera.source.model.SPlayableItem prepareNewPlayableItem(org.symera.source.browser.InteractiveBrowserSource, org.symera.source.model.SPlayableItem, org.symera.source.model.SContent);
+    descriptor: (Lorg/symera/source/browser/InteractiveBrowserSource;Lorg/symera/source/model/SPlayableItem;Lorg/symera/source/model/SContent;)Lorg/symera/source/model/SPlayableItem;
 }
 Compiled from "WebChallengeSource.kt"
 public final class org.symera.source.challenge.ChallengeRetryPolicy extends java.lang.Enum<org.symera.source.challenge.ChallengeRetryPolicy> {
@@ -861,13 +1034,6 @@ public final class org.symera.source.challenge.ChallengeRetryPolicy extends java
   public static kotlin.enums.EnumEntries<org.symera.source.challenge.ChallengeRetryPolicy> getEntries();
     descriptor: ()Lkotlin/enums/EnumEntries;
 }
-Compiled from "WebChallengeInterceptor.kt"
-public final class org.symera.source.challenge.CloudflareChallengeDetector implements org.symera.source.challenge.WebChallengeDetector {
-  public static final org.symera.source.challenge.CloudflareChallengeDetector INSTANCE;
-    descriptor: Lorg/symera/source/challenge/CloudflareChallengeDetector;
-  public boolean isChallenge(okhttp3.Response);
-    descriptor: (Lokhttp3/Response;)Z
-}
 Compiled from "WebChallengeSource.kt"
 public final class org.symera.source.challenge.InteractiveChallengeMode extends java.lang.Enum<org.symera.source.challenge.InteractiveChallengeMode> {
   public static final org.symera.source.challenge.InteractiveChallengeMode HOST_DEFAULT;
@@ -885,22 +1051,6 @@ public final class org.symera.source.challenge.InteractiveChallengeMode extends 
   public static kotlin.enums.EnumEntries<org.symera.source.challenge.InteractiveChallengeMode> getEntries();
     descriptor: ()Lkotlin/enums/EnumEntries;
 }
-Compiled from "WebChallengeInterceptor.kt"
-public interface org.symera.source.challenge.WebChallengeDetector {
-  public abstract boolean isChallenge(okhttp3.Response);
-    descriptor: (Lokhttp3/Response;)Z
-}
-Compiled from "WebChallengeInterceptor.kt"
-public final class org.symera.source.challenge.WebChallengeInterceptor implements okhttp3.Interceptor {
-  public org.symera.source.challenge.WebChallengeInterceptor(long, kotlin.jvm.functions.Function1<? super okhttp3.Request, org.symera.source.challenge.WebChallengePolicy>, org.symera.source.challenge.WebChallengeDetector);
-    descriptor: (JLkotlin/jvm/functions/Function1;Lorg/symera/source/challenge/WebChallengeDetector;)V
-
-  public org.symera.source.challenge.WebChallengeInterceptor(long, kotlin.jvm.functions.Function1, org.symera.source.challenge.WebChallengeDetector, int, kotlin.jvm.internal.DefaultConstructorMarker);
-    descriptor: (JLkotlin/jvm/functions/Function1;Lorg/symera/source/challenge/WebChallengeDetector;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-
-  public okhttp3.Response intercept(okhttp3.Interceptor$Chain);
-    descriptor: (Lokhttp3/Interceptor$Chain;)Lokhttp3/Response;
-}
 Compiled from "WebChallengeSource.kt"
 public interface org.symera.source.challenge.WebChallengeInterceptorFactory {
   public abstract okhttp3.Interceptor create(long, kotlin.jvm.functions.Function1<? super okhttp3.Request, org.symera.source.challenge.WebChallengePolicy>);
@@ -912,11 +1062,15 @@ public final class org.symera.source.challenge.WebChallengePolicy {
     descriptor: Lorg/symera/source/challenge/WebChallengePolicy$Companion;
   public static final long DEFAULT_TIMEOUT_MILLIS = 60000l;
     descriptor: J
-  public org.symera.source.challenge.WebChallengePolicy(org.symera.source.challenge.InteractiveChallengeMode, okhttp3.HttpUrl, okhttp3.HttpUrl, java.util.Set<java.lang.String>, java.util.Map<java.lang.String, java.lang.String>, org.symera.source.challenge.ChallengeRetryPolicy, long);
-    descriptor: (Lorg/symera/source/challenge/InteractiveChallengeMode;Lokhttp3/HttpUrl;Lokhttp3/HttpUrl;Ljava/util/Set;Ljava/util/Map;Lorg/symera/source/challenge/ChallengeRetryPolicy;J)V
+  public static final long MAXIMUM_TIMEOUT_MILLIS = 300000l;
+    descriptor: J
+  public static final int MAXIMUM_ADDITIONAL_ORIGINS = 16;
+    descriptor: I
+  public org.symera.source.challenge.WebChallengePolicy(org.symera.source.challenge.InteractiveChallengeMode, okhttp3.HttpUrl, okhttp3.HttpUrl, java.util.Collection<okhttp3.HttpUrl>, java.util.Map<java.lang.String, java.lang.String>, org.symera.source.challenge.ChallengeRetryPolicy, long);
+    descriptor: (Lorg/symera/source/challenge/InteractiveChallengeMode;Lokhttp3/HttpUrl;Lokhttp3/HttpUrl;Ljava/util/Collection;Ljava/util/Map;Lorg/symera/source/challenge/ChallengeRetryPolicy;J)V
 
-  public org.symera.source.challenge.WebChallengePolicy(org.symera.source.challenge.InteractiveChallengeMode, okhttp3.HttpUrl, okhttp3.HttpUrl, java.util.Set, java.util.Map, org.symera.source.challenge.ChallengeRetryPolicy, long, int, kotlin.jvm.internal.DefaultConstructorMarker);
-    descriptor: (Lorg/symera/source/challenge/InteractiveChallengeMode;Lokhttp3/HttpUrl;Lokhttp3/HttpUrl;Ljava/util/Set;Ljava/util/Map;Lorg/symera/source/challenge/ChallengeRetryPolicy;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+  public org.symera.source.challenge.WebChallengePolicy(org.symera.source.challenge.InteractiveChallengeMode, okhttp3.HttpUrl, okhttp3.HttpUrl, java.util.Collection, java.util.Map, org.symera.source.challenge.ChallengeRetryPolicy, long, int, kotlin.jvm.internal.DefaultConstructorMarker);
+    descriptor: (Lorg/symera/source/challenge/InteractiveChallengeMode;Lokhttp3/HttpUrl;Lokhttp3/HttpUrl;Ljava/util/Collection;Ljava/util/Map;Lorg/symera/source/challenge/ChallengeRetryPolicy;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
 
   public final org.symera.source.challenge.InteractiveChallengeMode getMode();
     descriptor: ()Lorg/symera/source/challenge/InteractiveChallengeMode;
@@ -927,53 +1081,17 @@ public final class org.symera.source.challenge.WebChallengePolicy {
   public final okhttp3.HttpUrl getVerificationUrl();
     descriptor: ()Lokhttp3/HttpUrl;
 
-  public final java.util.Set<java.lang.String> getAllowedTopLevelHosts();
-    descriptor: ()Ljava/util/Set;
-
-  public final java.util.Map<java.lang.String, java.lang.String> getInitialHeaders();
-    descriptor: ()Ljava/util/Map;
-
   public final org.symera.source.challenge.ChallengeRetryPolicy getRetryPolicy();
     descriptor: ()Lorg/symera/source/challenge/ChallengeRetryPolicy;
 
   public final long getTimeoutMillis();
     descriptor: ()J
 
-  public final org.symera.source.challenge.InteractiveChallengeMode component1();
-    descriptor: ()Lorg/symera/source/challenge/InteractiveChallengeMode;
-
-  public final okhttp3.HttpUrl component2();
-    descriptor: ()Lokhttp3/HttpUrl;
-
-  public final okhttp3.HttpUrl component3();
-    descriptor: ()Lokhttp3/HttpUrl;
-
-  public final java.util.Set<java.lang.String> component4();
+  public final java.util.Set<okhttp3.HttpUrl> getAdditionalAllowedTopLevelOrigins();
     descriptor: ()Ljava/util/Set;
 
-  public final java.util.Map<java.lang.String, java.lang.String> component5();
+  public final java.util.Map<java.lang.String, java.lang.String> getInitialHeaders();
     descriptor: ()Ljava/util/Map;
-
-  public final org.symera.source.challenge.ChallengeRetryPolicy component6();
-    descriptor: ()Lorg/symera/source/challenge/ChallengeRetryPolicy;
-
-  public final long component7();
-    descriptor: ()J
-
-  public final org.symera.source.challenge.WebChallengePolicy copy(org.symera.source.challenge.InteractiveChallengeMode, okhttp3.HttpUrl, okhttp3.HttpUrl, java.util.Set<java.lang.String>, java.util.Map<java.lang.String, java.lang.String>, org.symera.source.challenge.ChallengeRetryPolicy, long);
-    descriptor: (Lorg/symera/source/challenge/InteractiveChallengeMode;Lokhttp3/HttpUrl;Lokhttp3/HttpUrl;Ljava/util/Set;Ljava/util/Map;Lorg/symera/source/challenge/ChallengeRetryPolicy;J)Lorg/symera/source/challenge/WebChallengePolicy;
-
-  public static org.symera.source.challenge.WebChallengePolicy copy$default(org.symera.source.challenge.WebChallengePolicy, org.symera.source.challenge.InteractiveChallengeMode, okhttp3.HttpUrl, okhttp3.HttpUrl, java.util.Set, java.util.Map, org.symera.source.challenge.ChallengeRetryPolicy, long, int, java.lang.Object);
-    descriptor: (Lorg/symera/source/challenge/WebChallengePolicy;Lorg/symera/source/challenge/InteractiveChallengeMode;Lokhttp3/HttpUrl;Lokhttp3/HttpUrl;Ljava/util/Set;Ljava/util/Map;Lorg/symera/source/challenge/ChallengeRetryPolicy;JILjava/lang/Object;)Lorg/symera/source/challenge/WebChallengePolicy;
-
-  public java.lang.String toString();
-    descriptor: ()Ljava/lang/String;
-
-  public int hashCode();
-    descriptor: ()I
-
-  public boolean equals(java.lang.Object);
-    descriptor: (Ljava/lang/Object;)Z
 
   public org.symera.source.challenge.WebChallengePolicy();
     descriptor: ()V
@@ -982,20 +1100,6 @@ Compiled from "WebChallengeSource.kt"
 public final class org.symera.source.challenge.WebChallengePolicy$Companion {
   public org.symera.source.challenge.WebChallengePolicy$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
     descriptor: (Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-}
-Compiled from "WebChallengeInterceptor.kt"
-public final class org.symera.source.challenge.WebChallengeRequiredException extends java.io.IOException {
-  public org.symera.source.challenge.WebChallengeRequiredException(long, okhttp3.Request, org.symera.source.challenge.WebChallengePolicy);
-    descriptor: (JLokhttp3/Request;Lorg/symera/source/challenge/WebChallengePolicy;)V
-
-  public final long getSourceId();
-    descriptor: ()J
-
-  public final okhttp3.Request getFailedRequest();
-    descriptor: ()Lokhttp3/Request;
-
-  public final org.symera.source.challenge.WebChallengePolicy getPolicy();
-    descriptor: ()Lorg/symera/source/challenge/WebChallengePolicy;
 }
 Compiled from "WebChallengeSource.kt"
 public interface org.symera.source.challenge.WebChallengeSource {
@@ -8518,38 +8622,38 @@ public abstract class org.symera.source.online.SymeraHttpSource implements org.s
   protected okhttp3.Headers$Builder headersBuilder();
     descriptor: ()Lokhttp3/Headers$Builder;
 
-  public java.lang.Object getMovies(org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public java.lang.Object getMovies(org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  protected okhttp3.Request moviesRequest(org.symera.source.model.PageRequest);
-    descriptor: (Lorg/symera/source/model/PageRequest;)Lokhttp3/Request;
+  protected okhttp3.Request moviesRequest(org.symera.source.model.PageRequest, org.symera.source.model.FilterList);
+    descriptor: (Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;)Lokhttp3/Request;
 
   protected org.symera.source.model.ContentPage moviesParse(okhttp3.Response);
     descriptor: (Lokhttp3/Response;)Lorg/symera/source/model/ContentPage;
 
-  public java.lang.Object getSeries(org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public java.lang.Object getSeries(org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  protected okhttp3.Request seriesRequest(org.symera.source.model.PageRequest);
-    descriptor: (Lorg/symera/source/model/PageRequest;)Lokhttp3/Request;
+  protected okhttp3.Request seriesRequest(org.symera.source.model.PageRequest, org.symera.source.model.FilterList);
+    descriptor: (Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;)Lokhttp3/Request;
 
   protected org.symera.source.model.ContentPage seriesParse(okhttp3.Response);
     descriptor: (Lokhttp3/Response;)Lorg/symera/source/model/ContentPage;
 
-  public java.lang.Object getPopular(org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public java.lang.Object getPopular(org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  protected okhttp3.Request popularRequest(org.symera.source.model.PageRequest);
-    descriptor: (Lorg/symera/source/model/PageRequest;)Lokhttp3/Request;
+  protected okhttp3.Request popularRequest(org.symera.source.model.PageRequest, org.symera.source.model.FilterList);
+    descriptor: (Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;)Lokhttp3/Request;
 
   protected org.symera.source.model.ContentPage popularParse(okhttp3.Response);
     descriptor: (Lokhttp3/Response;)Lorg/symera/source/model/ContentPage;
 
-  public java.lang.Object getLatest(org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public java.lang.Object getLatest(org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  protected okhttp3.Request latestRequest(org.symera.source.model.PageRequest);
-    descriptor: (Lorg/symera/source/model/PageRequest;)Lokhttp3/Request;
+  protected okhttp3.Request latestRequest(org.symera.source.model.PageRequest, org.symera.source.model.FilterList);
+    descriptor: (Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;)Lokhttp3/Request;
 
   protected org.symera.source.model.ContentPage latestParse(okhttp3.Response);
     descriptor: (Lokhttp3/Response;)Lorg/symera/source/model/ContentPage;
@@ -8572,11 +8676,11 @@ public abstract class org.symera.source.online.SymeraHttpSource implements org.s
   protected java.util.List<org.symera.source.model.HomeSection> homeSectionsParse(okhttp3.Response);
     descriptor: (Lokhttp3/Response;)Ljava/util/List;
 
-  public java.lang.Object getSectionItems(org.symera.source.model.HomeSection, org.symera.source.model.PageRequest, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
-    descriptor: (Lorg/symera/source/model/HomeSection;Lorg/symera/source/model/PageRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+  public java.lang.Object getSectionItems(org.symera.source.model.HomeSection, org.symera.source.model.PageRequest, org.symera.source.model.FilterList, kotlin.coroutines.Continuation<? super org.symera.source.model.ContentPage>);
+    descriptor: (Lorg/symera/source/model/HomeSection;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  protected okhttp3.Request sectionItemsRequest(org.symera.source.model.HomeSection, org.symera.source.model.PageRequest);
-    descriptor: (Lorg/symera/source/model/HomeSection;Lorg/symera/source/model/PageRequest;)Lokhttp3/Request;
+  protected okhttp3.Request sectionItemsRequest(org.symera.source.model.HomeSection, org.symera.source.model.PageRequest, org.symera.source.model.FilterList);
+    descriptor: (Lorg/symera/source/model/HomeSection;Lorg/symera/source/model/PageRequest;Lorg/symera/source/model/FilterList;)Lokhttp3/Request;
 
   protected org.symera.source.model.ContentPage sectionItemsParse(okhttp3.Response, org.symera.source.model.HomeSection);
     descriptor: (Lokhttp3/Response;Lorg/symera/source/model/HomeSection;)Lorg/symera/source/model/ContentPage;
@@ -8665,8 +8769,11 @@ public abstract class org.symera.source.online.SymeraHttpSource implements org.s
   public java.util.List<org.symera.source.model.SStream> sortStreams(java.util.List<? extends org.symera.source.model.SStream>);
     descriptor: (Ljava/util/List;)Ljava/util/List;
 
-  public org.symera.source.model.FilterList getFilterList();
-    descriptor: ()Lorg/symera/source/model/FilterList;
+  public org.symera.source.model.FilterList getFilterList(org.symera.source.CatalogFeed);
+    descriptor: (Lorg/symera/source/CatalogFeed;)Lorg/symera/source/model/FilterList;
+
+  public org.symera.source.model.FilterList getFilterList(org.symera.source.model.HomeSection);
+    descriptor: (Lorg/symera/source/model/HomeSection;)Lorg/symera/source/model/FilterList;
 
   public java.lang.String toString();
     descriptor: ()Ljava/lang/String;
@@ -8692,11 +8799,11 @@ public abstract class org.symera.source.online.SymeraHttpSource implements org.s
   public java.lang.Object getRelatedBySearch(org.symera.source.model.SContent, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.SContent>>);
     descriptor: (Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 
-  public java.util.Set<org.symera.source.SourceCapability> getSourceCapabilities();
-    descriptor: ()Ljava/util/Set;
-
   public org.symera.source.model.SPlayableItem prepareNewPlayableItem(org.symera.source.model.SPlayableItem, org.symera.source.model.SContent);
     descriptor: (Lorg/symera/source/model/SPlayableItem;Lorg/symera/source/model/SContent;)Lorg/symera/source/model/SPlayableItem;
+
+  public java.util.Set<org.symera.source.SourceCapability> getSourceCapabilities();
+    descriptor: ()Ljava/util/Set;
 }
 Compiled from "SymeraHttpSource.kt"
 final class org.symera.source.online.SymeraHttpSource$client$2$2$1 extends kotlin.jvm.internal.FunctionReferenceImpl implements kotlin.jvm.functions.Function1<okhttp3.Request, org.symera.source.challenge.WebChallengePolicy> {

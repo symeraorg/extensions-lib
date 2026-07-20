@@ -1,5 +1,6 @@
 package org.symera.source
 
+import org.symera.source.browser.InteractiveBrowserSource
 import org.symera.source.iptv.IptvSource
 
 /** Host registration path that validates extension-owned declarations before exposing them to UI. */
@@ -7,6 +8,12 @@ fun SymeraExtensionFactory.loadVodSources(environment: SourceEnvironment): List<
     createVodSources(environment).also { sources ->
         require(sources.map(SymeraSource::id).distinct().size == sources.size) { "VOD source IDs must be unique" }
         sources.forEach(SymeraSource::validateContract)
+        val preferenceNamespaces = sources
+            .filterIsInstance<ConfigurableSymeraSource>()
+            .map(ConfigurableSymeraSource::sourcePreferenceNamespace)
+        require(preferenceNamespaces.distinct().size == preferenceNamespaces.size) {
+            "VOD source preference namespaces must be unique"
+        }
     }
 
 /** Host registration path equivalent for independently configured IPTV providers. */
@@ -27,10 +34,24 @@ private fun SymeraSource.validateContract() {
             "RELATED_SEARCH requires a searchable catalog source"
         }
     }
+    if (this is SymeraCatalogSource) {
+        STANDARD_CATALOG_FEEDS.forEach { (feed, capability) ->
+            if (capability in catalogCapabilities) getFilterList(feed).requireValid()
+        }
+    }
     if (this is ConfigurableSymeraSource) {
         val preferences = validatedSourcePreferences()
         require(preferences.none { it is org.symera.source.model.SourcePreference.Action } || this is ActionableSymeraSource) {
             "A source exposing preference actions must implement ActionableSymeraSource"
         }
     }
+    if (this is InteractiveBrowserSource) interactiveBrowserRequest()
 }
+
+private val STANDARD_CATALOG_FEEDS = mapOf(
+    CatalogFeed.MOVIES to CatalogCapability.MOVIES,
+    CatalogFeed.SERIES to CatalogCapability.SERIES,
+    CatalogFeed.POPULAR to CatalogCapability.POPULAR,
+    CatalogFeed.LATEST to CatalogCapability.LATEST,
+    CatalogFeed.SEARCH to CatalogCapability.SEARCH,
+)

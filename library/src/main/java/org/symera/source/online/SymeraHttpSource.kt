@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import org.symera.source.CatalogCapability
+import org.symera.source.CatalogFeed
 import org.symera.source.SourceCapability
 import org.symera.source.SourceEnvironment
 import org.symera.source.SourceException
@@ -63,28 +64,36 @@ abstract class SymeraHttpSource(
     protected open fun headersBuilder(): Headers.Builder =
         Headers.Builder().add("User-Agent", environment.userAgent)
 
-    override suspend fun getMovies(request: PageRequest): ContentPage =
-        execute(moviesRequest(request), ::moviesParse)
+    override suspend fun getMovies(request: PageRequest, filters: FilterList): ContentPage =
+        execute(moviesRequest(request, filters.requireValid()), ::moviesParse)
 
-    protected open fun moviesRequest(request: PageRequest): Request = unsupported(CatalogCapability.MOVIES)
+    protected open fun moviesRequest(request: PageRequest, filters: FilterList): Request =
+        unsupported(CatalogCapability.MOVIES)
+
     protected open fun moviesParse(response: Response): ContentPage = unsupported(CatalogCapability.MOVIES)
 
-    override suspend fun getSeries(request: PageRequest): ContentPage =
-        execute(seriesRequest(request), ::seriesParse)
+    override suspend fun getSeries(request: PageRequest, filters: FilterList): ContentPage =
+        execute(seriesRequest(request, filters.requireValid()), ::seriesParse)
 
-    protected open fun seriesRequest(request: PageRequest): Request = unsupported(CatalogCapability.SERIES)
+    protected open fun seriesRequest(request: PageRequest, filters: FilterList): Request =
+        unsupported(CatalogCapability.SERIES)
+
     protected open fun seriesParse(response: Response): ContentPage = unsupported(CatalogCapability.SERIES)
 
-    override suspend fun getPopular(request: PageRequest): ContentPage =
-        execute(popularRequest(request), ::popularParse)
+    override suspend fun getPopular(request: PageRequest, filters: FilterList): ContentPage =
+        execute(popularRequest(request, filters.requireValid()), ::popularParse)
 
-    protected open fun popularRequest(request: PageRequest): Request = unsupported(CatalogCapability.POPULAR)
+    protected open fun popularRequest(request: PageRequest, filters: FilterList): Request =
+        unsupported(CatalogCapability.POPULAR)
+
     protected open fun popularParse(response: Response): ContentPage = unsupported(CatalogCapability.POPULAR)
 
-    override suspend fun getLatest(request: PageRequest): ContentPage =
-        execute(latestRequest(request), ::latestParse)
+    override suspend fun getLatest(request: PageRequest, filters: FilterList): ContentPage =
+        execute(latestRequest(request, filters.requireValid()), ::latestParse)
 
-    protected open fun latestRequest(request: PageRequest): Request = unsupported(CatalogCapability.LATEST)
+    protected open fun latestRequest(request: PageRequest, filters: FilterList): Request =
+        unsupported(CatalogCapability.LATEST)
+
     protected open fun latestParse(response: Response): ContentPage = unsupported(CatalogCapability.LATEST)
 
     override suspend fun search(request: PageRequest, query: String, filters: FilterList): ContentPage =
@@ -101,11 +110,17 @@ abstract class SymeraHttpSource(
     protected open fun homeSectionsRequest(): Request = unsupported(CatalogCapability.HOME_SECTIONS)
     protected open fun homeSectionsParse(response: Response): List<HomeSection> = unsupported(CatalogCapability.HOME_SECTIONS)
 
-    override suspend fun getSectionItems(section: HomeSection, request: PageRequest): ContentPage =
-        execute(sectionItemsRequest(section, request)) { sectionItemsParse(it, section) }
+    override suspend fun getSectionItems(
+        section: HomeSection,
+        request: PageRequest,
+        filters: FilterList,
+    ): ContentPage = execute(sectionItemsRequest(section, request, filters.requireValid())) { sectionItemsParse(it, section) }
 
-    protected open fun sectionItemsRequest(section: HomeSection, request: PageRequest): Request =
-        unsupported(CatalogCapability.HOME_SECTIONS)
+    protected open fun sectionItemsRequest(
+        section: HomeSection,
+        request: PageRequest,
+        filters: FilterList,
+    ): Request = unsupported(CatalogCapability.HOME_SECTIONS)
 
     protected open fun sectionItemsParse(response: Response, section: HomeSection): ContentPage =
         unsupported(CatalogCapability.HOME_SECTIONS)
@@ -177,7 +192,8 @@ abstract class SymeraHttpSource(
     open fun getPlayableItemUrl(item: SPlayableItem): String = absoluteUrl(item.url)
     open fun List<SHoster>.sortHosters(): List<SHoster> = this
     open fun List<SStream>.sortStreams(): List<SStream> = this
-    override fun getFilterList(): FilterList = FilterList()
+    override fun getFilterList(feed: CatalogFeed): FilterList = FilterList()
+    override fun getFilterList(section: HomeSection): FilterList = FilterList()
     override fun toString(): String = "$name (${lang.uppercase(Locale.ROOT)})"
 
     fun contentWithRelativeUrl(content: SContent, url: String): SContent = content.copy(url = relativeUrl(url))
