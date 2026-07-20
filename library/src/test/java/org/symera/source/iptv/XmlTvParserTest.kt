@@ -43,4 +43,16 @@ class XmlTvParserTest {
                 .parse(StringReader(xml))
         }
     }
+
+    @Test
+    fun enforcesDiagnosticLimitForInvalidProgrammes() {
+        val xml =
+            """
+            <tv>${"<programme start=\"20260719120000 +0000\"><title>Missing channel</title></programme>".repeat(1_025)}</tv>
+            """.trimIndent()
+
+        assertThrows(IptvParseException::class.java) {
+            XmlTvParser().parse(StringReader(xml))
+        }
+    }
 }

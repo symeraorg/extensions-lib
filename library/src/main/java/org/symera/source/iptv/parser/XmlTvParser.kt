@@ -345,7 +345,7 @@ class XmlTvParser(
                 line = locator?.lineNumber?.takeIf { it > 0 },
                 column = locator?.columnNumber?.takeIf { it > 0 },
             )
-            diagnostics += diagnostic
+            addDiagnostic(diagnostic)
             throw IptvParseException(diagnostic)
         }
 
@@ -394,8 +394,23 @@ class XmlTvParser(
                 locator?.lineNumber?.takeIf { it > 0 },
                 locator?.columnNumber?.takeIf { it > 0 },
             )
-            diagnostics += diagnostic
+            addDiagnostic(diagnostic)
             if (options.mode == IptvParseMode.STRICT) throw SAXException(IptvParseException(diagnostic, cause))
+        }
+
+        private fun addDiagnostic(diagnostic: IptvParseDiagnostic) {
+            if (diagnostics.size >= 1_024) {
+                throw IptvParseException(
+                    IptvParseDiagnostic(
+                        severity = IptvDiagnosticSeverity.ERROR,
+                        code = IptvDiagnosticCode.RESOURCE_LIMIT_EXCEEDED,
+                        message = "XMLTV exceeds diagnostic limit",
+                        line = locator?.lineNumber?.takeIf { it > 0 },
+                        column = locator?.columnNumber?.takeIf { it > 0 },
+                    ),
+                )
+            }
+            diagnostics += diagnostic
         }
     }
 
