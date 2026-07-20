@@ -1,4 +1,11 @@
-# Symera Extensions Library
+# Symera Extensions SDK
+
+Contracts and implementation tools for Symera VOD and IPTV extensions.
+Each extension decides which catalog, parsing, authentication, playback, local, or torrent tools it needs.
+
+**API version:** 3 · **Release:** 3.0.0
+
+## Dependency
 
 ```kotlin
 repositories {
@@ -6,118 +13,202 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.github.symeraorg:extensions-lib:<tag>")
+    compileOnly("com.github.symeraorg:extensions-lib:3.0.0")
 }
 ```
 
-```groovy
-dependencies {
-    compileOnly "org.symera:extensions-lib:2"
+The host must include the same artifact at runtime. Public SDK dependencies (OkHttp, coroutines, Jsoup, kotlinx.serialization, UniFile) are published transitively.
+
+## Architecture
+
+```
+Host (Symera app)
+ └─ SymeraExtensionFactory
+     ├─ createVodSources(SourceEnvironment) → List<SymeraSource>
+     └─ createIptvSources(SourceEnvironment) → List<IptvSource>
+```
+
+- **Extensions** map provider data, apply filters, and resolve playback.
+- **Host** owns network infrastructure, challenge UI, player, DRM, filesystem, and discovery.
+- Complete SDK implementations (e.g. `SymeraHttpSource`) are opt-in adapters; implementing core interfaces directly is valid.
+
+### Entry Point
+
+Manifest metadata declares the factory class:
+
+```xml
+<uses-feature android:name="symera.extension" android:required="false" />
+<application>
+    <meta-data android:name="symera.extension.factory" android:value="com.example.MyExtensionFactory" />
+    <meta-data android:name="symera.extension.sdk" android:value="3" />
+</application>
+```
+
+The class must be a Kotlin `object` or have a public no-argument constructor. R8 rules for extension projects:
+
+```proguard
+-keep class * implements org.symera.source.SymeraExtensionFactory {
+    public <init>();
+    public static ** INSTANCE;
 }
 ```
 
-## API Overview
+## VOD
 
-### Source contracts (`org.symera.source`)
+### SymeraSource
 
-| Interface | Purpose |
+Base contract. Required properties: `id: Long`, `name: String`, `lang: String`, `contentTypes: Set<ContentType>`.
+
+`sourceCapabilities: Set<SourceCapability>` declares what playback operations the source supports. The host only calls methods whose capability is advertised.
+
+| Capability | Method | Description |
+|---|---|---|
+| `PLAYABLE_ITEMS` | `getPlayableItems(SContent)` | Items directly under content |
+| `SEASONS` | `getSeasons(SContent)` | Explicit season entries |
+| `ITEM_STREAMS` | `getStreams(SPlayableItem)` | Direct stream resolution |
+| `HOSTERS` | `getHosters(SPlayableItem)` | Hosters → streams |
+| `RELATED_CONTENT` | `getRelated(SContent)` | Direct related items |
+| `RELATED_SEARCH` | `getRelatedBySearch(SContent)` | Search-based related |
+| `DEFERRED_STREAMS` | via `DeferredStream` in stream lists | Lazy resolution |
+
+`getDetails(SContent)` is always available. `prepareNewPlayableItem(item, content)` is a non-suspend identity function by default.
+
+### SymeraCatalogSource
+
+Extends `SymeraSource` with browsing feeds. `catalogCapabilities: Set<CatalogCapability>` declares available feeds.
+
+| Capability | Method |
 |---|---|
-| `SymeraSource` | Base contract every source must implement |
-| `SymeraCatalogSource` | Adds movie and series catalog browsing, search, home sections, related content |
-| `ConfigurableSymeraSource` | Adds app-rendered preferences |
-| `SymeraSourceFactory` | Factory for multi-source extensions |
-| `UnmeteredSource` | Marker for self-hosted / local-network sources |
-| `LocalSymeraSource` | Marker for sources that read local media through Symera's local filesystem facade |
+| `MOVIES` | `getMovies(PageRequest)` |
+| `SERIES` | `getSeries(PageRequest)` |
+| `POPULAR` | `getPopular(PageRequest)` |
+| `LATEST` | `getLatest(PageRequest)` |
+| `SEARCH` | `search(PageRequest, query, filters)` |
+| `HOME_SECTIONS` | `getHomeSections()` + `getSectionItems(section, PageRequest)` |
 
-### HTTP sources (`org.symera.source.online`)
+`getFilterList()` returns available filters for search. Default: empty.
 
-| Class | Purpose |
-|---|---|
-| `SymeraHttpSource` | Base for sources backed by an HTTP website or API |
-| `ParsedSymeraHttpSource` | Convenience base for HTML sources using Jsoup selectors |
-| `ResolvableSymeraSource` | Deep-link support: resolve a URI to content or playable items |
+### Playback Flow
 
-### Models (`org.symera.source.model`)
-
-| Type | Description |
-|---|---|
-| `SContent` | A movie, series, anime, or other content item |
-| `SPlayableItem` | An individual playable episode or video |
-| `SSeason` | A season grouping playable items |
-| `SHoster` | A hosting provider with a list of streams |
-| `SStream` | A single playable stream with optional tracks |
-| `ContentPage` | Paginated catalog result |
-| `HomeSection` | A named section on the source's home page |
-| `Filter`, `FilterList` | Search/browse filter hierarchy |
-| `SourcePreference` | Preference UI model for configurable sources |
-| `UpdateStrategy`, `FetchType` | Optional host hints for update and fetch behavior |
-
-### Local sources (`org.symera.source.local`)
-
-| Type | Description |
-|---|---|
-| `LocalSymeraSource` | Optional marker for local media sources |
-| `LocalSymeraSourceFileSystem` | `UniFile` facade for Symera's host-provided local content directory |
-
-The host app sets `LocalSymeraSourceFileSystem.defaultBaseDirectoryProvider`. Extensions can then list content directories and playable files without handling Android storage permissions directly.
-
-Extensions that use local-source APIs should also compile against UniFile:
-
-```kotlin
-compileOnly("com.github.komikku-app:UniFile:084a54140a")
+```
+item → streams → [DeferredStream → PlayableStream]   (direct)
+item → hosters → streams → [DeferredStream → PlayableStream]   (hosted)
 ```
 
-### Related content
+See [docs/PLAYBACK.md](docs/PLAYBACK.md).
 
-`SymeraCatalogSource` includes Aniyomi-style related-content hooks adapted for movies and series:
+### SymeraHttpSource
 
-| Member | Description |
-|---|---|
-| `supportsRelatedContent` | Source can fetch/parse related content directly |
-| `disableRelatedContentBySearch` | Disables search fallback using stripped title keywords |
-| `disableRelatedContent` | Disables related content entirely |
-| `fetchRelatedContentList(content)` | Direct source/site related-content fetch |
-| `getRelatedContent(...)` | Pushes related batches as `Pair<keyword, List<SContent>>` |
-| `getRelatedContentBySearch(...)` | Default title-keyword search fallback |
+Base class for HTTP-based VOD sources. Provides a `Request`/`Parse` pair for every catalog and playback method. Only `contentDetailsParse(Response)` is abstract. All other parse methods are `open` with unsupported defaults.
 
-HTTP sources can override `relatedContentRequest()` and `relatedContentParse()`. Parsed HTML sources can override `relatedContentSelector()` and `relatedContentFromElement()`.
+`ParsedSymeraHttpSource` adds CSS-selector-based HTML parsing. All selectors and element parsers are `open`. Includes `itemStreamsSelector`/`itemStreamFromElement` for direct HTML→stream extraction.
 
-### Torrent utilities (`org.symera.source.torrentutils`)
+## Filters
 
-| Type | Description |
-|---|---|
-| `TorrentUtils` | Parses magnet links and `.torrent` files from HTTP(S), `file://`, or local paths |
-| `TorrentInfo` | Torrent title, files, infohash, total size, trackers |
-| `TorrentFile` | Individual torrent file with `toMagnetURI()` helper |
-| `DeadTorrentException` | Thrown when a torrent cannot be loaded or parsed |
+`Filter<T>` is open. Available types:
 
-### Utilities
+| Filter | State | Description |
+|---|---|---|
+| `Header` | `Unit` | Section header |
+| `Separator` | `Unit` | Visual divider |
+| `Text` | `String` | Free text input |
+| `CheckBox` | `Boolean` | Toggle |
+| `Select<V>` | `Int` (index) | Single selection |
+| `MultiSelect<V>` | `Set<Int>` (indices) | Multiple selection |
+| `TriState` | `TriStateValue` | Include/Exclude/Ignore |
+| `Group<V>` | `List<V>` | Nested container (`FilterContainer`) |
+| `Sort` | `SortSelection?` | Sort with ascending/descending |
+| `NumberRange` | `Range` | Numeric range |
+| `DateRange` | `Range` | Date range |
 
-| Extension | Description |
-|---|---|
-| `HttpExtensions.kt` | `GET`/`POST`, `awaitSuccess` (async HTTP), `asJsoup`, `bodyString` |
-| `network/*` | Request helpers, OkHttp response helpers, cache/cookie network helper, JavaScript engine |
-| `util/*` | Coroutine, JSON, and Jsoup helpers for extension implementations |
+Keys must be unique across all filters. `FilterList` constructor calls `requireValid()`, which checks mutable state, custom `FilterContainer` children, duplicate keys, and cycles. Subclassing a standard filter attaches site-specific request metadata; it does not create new host widgets.
 
-### Network and JavaScript
+## Preferences
 
-`SymeraHttpSource` exposes both `client` and `cloudflareClient`. The host app can provide these through `defaultClientProvider` and `defaultCloudflareClientProvider`, allowing extensions to opt into Cloudflare-capable behavior without bundling network infrastructure.
+`SourcePreference<T>` sealed class:
 
-`JavaScriptEngine` wraps Android WebView for pages or hosts that require JavaScript execution before stream URLs can be extracted.
+| Type | State | Description |
+|---|---|---|
+| `Text` | `String` | Text with optional `TextValidation` |
+| `Secret` | `String` | Encrypted storage (default must be empty) |
+| `Switch` | `Boolean` | Toggle |
+| `Number` | `Long` | Numeric with optional min/max |
+| `Select` | `String` | Single selection from `Option` list |
+| `MultiSelect` | `Set<String>` | Multiple selection |
+| `Action` | `Unit` | Button (requires `ActionableSymeraSource`) |
+| `Header` | `Unit` | Section header |
+| `Separator` | — | Divider |
 
-### Host app info (`org.symera`)
+`enabledWhen: PreferenceCondition?` supports `BooleanValue`, `StringValue`, `StringSetContains`, `LongValue`, `IsNotBlank`, `All`, `Any`, `Not`. Dependency cycles are rejected.
 
-| Class | Description |
-|---|---|
-| `AppInfo` | Version code and name of the host Symera application |
+`SourceEnvironment.preferencesFor(namespace)` returns a `SourcePreferenceValues` store.
 
-## Creating an Extension
+## Challenges
 
-Every extension must provide at least one source implementing `SymeraSource`. Sources are discovered at runtime via the manifest metadata constants in `SymeraExtensionMetadata`.
+Extensions implement `WebChallengeSource` to declare challenge policy. The host supplies `SourceEnvironment.webChallengeInterceptorFactory`; `SymeraHttpSource` installs only the interceptor returned by that factory. Implementing `WebChallengeSource` alone does not install challenge behavior.
 
-Catalog sources expose `getMovies(page)` and `getSeries(page)` as first-class browse entry points. `search(page, query, filters)` and `getFilterList()` remain independent and are still used for text search and filtered browsing.
+`CloudflareChallengeDetector` detects challenges via `cf-mitigated: challenge` header, or HTTP 403/503 + Cloudflare server + HTML markers. Throws `WebChallengeRequiredException`.
 
-Current SDK version: `2`.
+See [docs/CHALLENGES.md](docs/CHALLENGES.md).
+
+## IPTV
+
+`IptvSource` and `IptvSession` model IPTV independently from VOD. Configuration supports playlist URLs, individual channels, or provider-specific adapters.
+
+### Composition
+
+`IptvSessionServices` composes a channel catalog and live playback resolver. Optional services: groups, EPG, now/next, catch-up, timeshift, dynamic headers, license exchange, refresh. `capabilities` is derived from which services are non-null.
+
+```
+IptvSessionServices(
+    channels: IptvChannelCatalog,           // required
+    playback: IptvPlaybackServices,         // required (live + optional catch-up/timeshift)
+    groups, epg, nowNext, dynamicHeaders,   // optional
+    licenseExchange, refresher, clock       // optional
+)
+```
+
+### Playback
+
+`IptvPlaybackServices` dispatches to live, catch-up, or timeshift resolvers based on intent mode. Each resolver returns an `IptvPlaybackRequest` with URI, protocol, headers, and DRM.
+
+### ConfiguredIptvSource
+
+Ready-to-use implementation for user-entered playlist URLs. Components are injectable via `ConfiguredIptvComponents`: playlist parser, channel identity, catalog merger, EPG matcher, catch-up resolver, timeshift resolver, clock. Authentication via `ConfiguredIptvAuthenticator` (built-in: none, HTTP Basic, Bearer, API key).
+
+See [docs/IPTV.md](docs/IPTV.md).
+
+## Torrent
+
+Pure bencode parsing, BitTorrent v1/v2/hybrid metainfo, `btih`/`btmh` magnets, BEP 53 file selection, trackers, web seeds, and size-limited HTTP loading. Magnet parsing never fabricates a file list or size. Authenticated `.torrent` requests accept an OkHttp `Request`; redirects drop extension headers on origin change and reject HTTPS downgrade.
+
+## SourceEnvironment
+
+Host-provided infrastructure injected into every source:
+
+| Property | Type | Description |
+|---|---|---|
+| `httpClient` | `OkHttpClient` | Shared HTTP client |
+| `userAgent` | `String` | User-Agent string |
+| `appInfo` | `HostAppInfo` | Version code, version name, SDK version |
+| `logger` | `SourceLogger` | Debug/warning/error logging |
+| `webChallengeInterceptorFactory` | `WebChallengeInterceptorFactory?` | Optional challenge interceptor |
+| `localFileSystem` | `LocalSourceFileSystem?` | Optional local file access |
+| `javaScriptEngineFactory` | `JavaScriptEngineFactory?` | Optional JS extraction |
+
+`LocalSourceFileSystem` interface: `requireBaseDirectory`, `getFilesInBaseDirectory`, `getContentDirectories`, `getContentDirectory(name)`, `walk(dir, maxDepth, maxEntries)`, `getPlayableFiles(dir, extensions, maxDepth, maxEntries)`, `getSidecarSubtitles(video)`.
+
+## Local Storage
+
+`LocalMediaDefaults` provides defaults: `MAXIMUM_DEPTH = 8`, `MAXIMUM_ENTRIES = 100_000`, standard video/subtitle extensions. `LocalSymeraSourceFileSystem` implements `LocalSourceFileSystem` using `UniFile` and `Dispatchers.IO`.
+
+## Quality
+
+- Kotlin warnings are build errors.
+- `checkPublicApi` compares the release AAR against the reviewed `api/extensions-lib.api` ABI snapshot.
+- Unit tests cover VOD capabilities, mutable filters, composed IPTV, M3U, XMLTV/XXE, catch-up credential scoping, authentication, URI policy, and BitTorrent v1/v2.
+- HTTP coroutine cancellation cancels the underlying OkHttp call.
+- XMLTV parsing disables external entities and DTD loading.
 
 ## License
 
