@@ -89,6 +89,11 @@ internal object IptvHeaderPolicy {
     }
 }
 
+/** Validates extension or host-generated IPTV headers against the SDK transport contract. */
+fun requireValidIptvHeaders(headers: Map<String, String>, label: String = "HTTP") {
+    IptvHeaderPolicy.requireValid(headers, label)
+}
+
 internal fun URI.redactedForLog(): String = buildString {
     append(scheme).append("://").append(host ?: "<redacted>")
     if (port >= 0) append(':').append(port)

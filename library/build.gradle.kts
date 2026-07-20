@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "org.symera"
-version = "3.0.1"
+version = "3.0.2"
 
 android {
     namespace = "org.symera.source"

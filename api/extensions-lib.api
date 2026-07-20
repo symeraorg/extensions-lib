@@ -4120,6 +4120,12 @@ public final class org.symera.source.iptv.IptvUriPolicy {
 }
 Compiled from "IptvValidation.kt"
 public final class org.symera.source.iptv.IptvValidationKt {
+  public static final void requireValidIptvHeaders(java.util.Map<java.lang.String, java.lang.String>, java.lang.String);
+    descriptor: (Ljava/util/Map;Ljava/lang/String;)V
+
+  public static void requireValidIptvHeaders$default(java.util.Map, java.lang.String, int, java.lang.Object);
+    descriptor: (Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)V
+
   public static final java.lang.String redactedForLog(java.net.URI);
     descriptor: (Ljava/net/URI;)Ljava/lang/String;
 }
