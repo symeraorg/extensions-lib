@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "org.symera"
-version = "4.0.0"
+version = "4.0.1"
 
 android {
     namespace = "org.symera.source"
@@ -122,8 +122,41 @@ fun renderPublicApi(outputFile: File) {
     val output = process.inputStream.bufferedReader().use { it.readText() }
     check(process.waitFor() == 0) { "javap failed:\n$output" }
     outputFile.parentFile.mkdirs()
-    outputFile.writeText(output.replace("\r\n", "\n").trimEnd() + "\n")
+    outputFile.writeText(output.canonicalPublicApi() + "\n")
 }
+
+private fun String.canonicalPublicApi(): String =
+    replace("\r\n", "\n")
+        .trimEnd()
+        .split("Compiled from ")
+        .filter(String::isNotBlank)
+        .joinToString("\n") { classOutput ->
+            val normalizedClass = "Compiled from $classOutput"
+            val className = classOutput.lineSequence().take(2).joinToString(" / ")
+            val bodyStart =
+                normalizedClass.indexOf('\n', normalizedClass.indexOf('\n') + 1).let {
+                    require(it >= 0) { "Unexpected javap output for $className" }
+                    it + 1
+                }
+            val bodyEnd =
+                normalizedClass.lastIndexOf("\n}").let {
+                    require(it >= bodyStart - 1) { "Unexpected javap output for $className" }
+                    it
+                }
+            val header = normalizedClass.substring(0, bodyStart - 1)
+            val members =
+                normalizedClass
+                    .substring(bodyStart, maxOf(bodyStart, bodyEnd))
+                    .trim()
+                    .split("\n\n")
+                    .filter(String::isNotBlank)
+                    .sorted()
+            buildString {
+                append(header)
+                if (members.isNotEmpty()) append('\n').append(members.joinToString("\n\n"))
+                append("\n}")
+            }
+        }
 
 val generatePublicApi = tasks.register("generatePublicApi") {
     group = "verification"
