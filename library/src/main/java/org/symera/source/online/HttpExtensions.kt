@@ -1,6 +1,7 @@
 package org.symera.source.online
 
 import java.io.IOException
+import okio.Buffer
 import okhttp3.Headers
 import okhttp3.HttpUrl
 import okhttp3.Request
@@ -30,9 +31,16 @@ fun Response.bodyString(maximumBytes: Long = DEFAULT_MAXIMUM_BODY_BYTES): String
     require(maximumBytes > 0) { "Maximum body size must be positive" }
     val contentLength = body.contentLength()
     if (contentLength > maximumBytes) throw IOException("HTTP body exceeds $maximumBytes bytes")
-    val bytes = body.source().readByteArray(maximumBytes + 1)
-    if (bytes.size > maximumBytes) throw IOException("HTTP body exceeds $maximumBytes bytes")
+    val buffer = Buffer()
+    val source = body.source()
+    while (true) {
+        val read = source.read(buffer, BODY_READ_CHUNK_SIZE)
+        if (read == -1L) break
+        if (buffer.size > maximumBytes) throw IOException("HTTP body exceeds $maximumBytes bytes")
+    }
+    val bytes = buffer.readByteArray()
     return bytes.toString(body.contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8)
 }
 
 const val DEFAULT_MAXIMUM_BODY_BYTES = 16L * 1024L * 1024L
+private const val BODY_READ_CHUNK_SIZE = 8L * 1024L
