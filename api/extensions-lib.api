@@ -292,6 +292,9 @@ public interface org.symera.source.SourceEnvironment {
   public default org.symera.source.network.JavaScriptEngineFactory getJavaScriptEngineFactory();
     descriptor: ()Lorg/symera/source/network/JavaScriptEngineFactory;
 
+  public default org.symera.source.network.MediaBrowserFactory getMediaBrowserFactory();
+    descriptor: ()Lorg/symera/source/network/MediaBrowserFactory;
+
   public static org.symera.source.challenge.WebChallengeInterceptorFactory access$getWebChallengeInterceptorFactory$jd(org.symera.source.SourceEnvironment);
     descriptor: (Lorg/symera/source/SourceEnvironment;)Lorg/symera/source/challenge/WebChallengeInterceptorFactory;
 
@@ -300,6 +303,9 @@ public interface org.symera.source.SourceEnvironment {
 
   public static org.symera.source.network.JavaScriptEngineFactory access$getJavaScriptEngineFactory$jd(org.symera.source.SourceEnvironment);
     descriptor: (Lorg/symera/source/SourceEnvironment;)Lorg/symera/source/network/JavaScriptEngineFactory;
+
+  public static org.symera.source.network.MediaBrowserFactory access$getMediaBrowserFactory$jd(org.symera.source.SourceEnvironment);
+    descriptor: (Lorg/symera/source/SourceEnvironment;)Lorg/symera/source/network/MediaBrowserFactory;
 
 public abstract okhttp3.OkHttpClient getHttpClient();
     descriptor: ()Lokhttp3/OkHttpClient;
@@ -311,6 +317,9 @@ public final class org.symera.source.SourceEnvironment$DefaultImpls {
 
   public static org.symera.source.network.JavaScriptEngineFactory getJavaScriptEngineFactory(org.symera.source.SourceEnvironment);
     descriptor: (Lorg/symera/source/SourceEnvironment;)Lorg/symera/source/network/JavaScriptEngineFactory;
+
+  public static org.symera.source.network.MediaBrowserFactory getMediaBrowserFactory(org.symera.source.SourceEnvironment);
+    descriptor: (Lorg/symera/source/SourceEnvironment;)Lorg/symera/source/network/MediaBrowserFactory;
 
 public static org.symera.source.challenge.WebChallengeInterceptorFactory getWebChallengeInterceptorFactory(org.symera.source.SourceEnvironment);
     descriptor: (Lorg/symera/source/SourceEnvironment;)Lorg/symera/source/challenge/WebChallengeInterceptorFactory;
@@ -6082,39 +6091,9 @@ public static final java.util.List access$flattenFilters(java.util.List);
     descriptor: (Ljava/util/List;)Ljava/util/List;
 }
 Compiled from "Filter.kt"
-public final class org.symera.source.model.FilterList implements java.util.List<org.symera.source.model.Filter<?>>, kotlin.jvm.internal.markers.KMappedMarker {
-  public <T> T[] toArray(T[]);
-    descriptor: ([Ljava/lang/Object;)[Ljava/lang/Object;
-
-  public boolean add(java.lang.Object);
-    descriptor: (Ljava/lang/Object;)Z
-
-  public boolean add(org.symera.source.model.Filter<?>);
-    descriptor: (Lorg/symera/source/model/Filter;)Z
-
-  public boolean addAll(int, java.util.Collection<? extends org.symera.source.model.Filter<?>>);
-    descriptor: (ILjava/util/Collection;)Z
-
-  public boolean addAll(java.util.Collection<? extends org.symera.source.model.Filter<?>>);
-    descriptor: (Ljava/util/Collection;)Z
-
+public final class org.symera.source.model.FilterList extends kotlin.collections.AbstractList<org.symera.source.model.Filter<?>> {
   public boolean contains(org.symera.source.model.Filter<?>);
     descriptor: (Lorg/symera/source/model/Filter;)Z
-
-  public boolean containsAll(java.util.Collection<?>);
-    descriptor: (Ljava/util/Collection;)Z
-
-  public boolean isEmpty();
-    descriptor: ()Z
-
-  public boolean remove(java.lang.Object);
-    descriptor: (Ljava/lang/Object;)Z
-
-  public boolean removeAll(java.util.Collection<?>);
-    descriptor: (Ljava/util/Collection;)Z
-
-  public boolean retainAll(java.util.Collection<?>);
-    descriptor: (Ljava/util/Collection;)Z
 
   public final boolean contains(java.lang.Object);
     descriptor: (Ljava/lang/Object;)Z
@@ -6124,9 +6103,6 @@ public final class org.symera.source.model.FilterList implements java.util.List<
 
   public final int lastIndexOf(java.lang.Object);
     descriptor: (Ljava/lang/Object;)I
-
-  public final int size();
-    descriptor: ()I
 
   public final org.symera.source.model.FilterList requireValid();
     descriptor: ()Lorg/symera/source/model/FilterList;
@@ -6143,47 +6119,8 @@ public final class org.symera.source.model.FilterList implements java.util.List<
   public java.lang.Object get(int);
     descriptor: (I)Ljava/lang/Object;
 
-  public java.lang.Object remove(int);
-    descriptor: (I)Ljava/lang/Object;
-
-  public java.lang.Object removeFirst();
-    descriptor: ()Ljava/lang/Object;
-
-  public java.lang.Object removeLast();
-    descriptor: ()Ljava/lang/Object;
-
-  public java.lang.Object set(int, java.lang.Object);
-    descriptor: (ILjava/lang/Object;)Ljava/lang/Object;
-
-  public java.lang.Object[] toArray();
-    descriptor: ()[Ljava/lang/Object;
-
-  public java.util.Iterator<org.symera.source.model.Filter<?>> iterator();
-    descriptor: ()Ljava/util/Iterator;
-
-  public java.util.List<org.symera.source.model.Filter<?>> subList(int, int);
-    descriptor: (II)Ljava/util/List;
-
-  public java.util.ListIterator<org.symera.source.model.Filter<?>> listIterator();
-    descriptor: ()Ljava/util/ListIterator;
-
-  public java.util.ListIterator<org.symera.source.model.Filter<?>> listIterator(int);
-    descriptor: (I)Ljava/util/ListIterator;
-
   public org.symera.source.model.Filter<?> get(int);
     descriptor: (I)Lorg/symera/source/model/Filter;
-
-  public org.symera.source.model.Filter<?> remove(int);
-    descriptor: (I)Lorg/symera/source/model/Filter;
-
-  public org.symera.source.model.Filter<?> removeFirst();
-    descriptor: ()Lorg/symera/source/model/Filter;
-
-  public org.symera.source.model.Filter<?> removeLast();
-    descriptor: ()Lorg/symera/source/model/Filter;
-
-  public org.symera.source.model.Filter<?> set(int, org.symera.source.model.Filter<?>);
-    descriptor: (ILorg/symera/source/model/Filter;)Lorg/symera/source/model/Filter;
 
   public org.symera.source.model.FilterList(java.util.Collection, int, kotlin.jvm.internal.DefaultConstructorMarker);
     descriptor: (Ljava/util/Collection;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -6193,33 +6130,6 @@ public final class org.symera.source.model.FilterList implements java.util.List<
 
   public org.symera.source.model.FilterList(org.symera.source.model.Filter<?>...);
     descriptor: ([Lorg/symera/source/model/Filter;)V
-
-  public void add(int, java.lang.Object);
-    descriptor: (ILjava/lang/Object;)V
-
-  public void add(int, org.symera.source.model.Filter<?>);
-    descriptor: (ILorg/symera/source/model/Filter;)V
-
-  public void addFirst(java.lang.Object);
-    descriptor: (Ljava/lang/Object;)V
-
-  public void addFirst(org.symera.source.model.Filter<?>);
-    descriptor: (Lorg/symera/source/model/Filter;)V
-
-  public void addLast(java.lang.Object);
-    descriptor: (Ljava/lang/Object;)V
-
-  public void addLast(org.symera.source.model.Filter<?>);
-    descriptor: (Lorg/symera/source/model/Filter;)V
-
-  public void clear();
-    descriptor: ()V
-
-  public void replaceAll(java.util.function.UnaryOperator<org.symera.source.model.Filter<?>>);
-    descriptor: (Ljava/util/function/UnaryOperator;)V
-
-  public void sort(java.util.Comparator<? super org.symera.source.model.Filter<?>>);
-    descriptor: (Ljava/util/Comparator;)V
 
 public final java.util.List<org.symera.source.model.Filter<?>> getList();
     descriptor: ()Ljava/util/List;
@@ -8324,6 +8234,110 @@ Compiled from "JavaScriptEngine.kt"
 public interface org.symera.source.network.JavaScriptEngineFactory {
 public abstract org.symera.source.network.JavaScriptEngine create(boolean, kotlin.jvm.functions.Function1<? super java.lang.String, java.lang.Boolean>);
     descriptor: (ZLkotlin/jvm/functions/Function1;)Lorg/symera/source/network/JavaScriptEngine;
+}
+Compiled from "MediaBrowser.kt"
+public interface org.symera.source.network.MediaBrowser extends java.io.Closeable {
+public abstract java.lang.Object resolve(org.symera.source.network.MediaBrowserRequest, kotlin.coroutines.Continuation<? super org.symera.source.network.MediaBrowserResult>);
+    descriptor: (Lorg/symera/source/network/MediaBrowserRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+Compiled from "MediaBrowser.kt"
+public interface org.symera.source.network.MediaBrowserFactory {
+public abstract org.symera.source.network.MediaBrowser create();
+    descriptor: ()Lorg/symera/source/network/MediaBrowser;
+}
+Compiled from "MediaBrowser.kt"
+public final class org.symera.source.network.MediaBrowserRequest {
+  public boolean equals(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+
+  public final java.lang.String component1();
+    descriptor: ()Ljava/lang/String;
+
+  public final java.lang.String component3();
+    descriptor: ()Ljava/lang/String;
+
+  public final java.lang.String getEntryUrl();
+    descriptor: ()Ljava/lang/String;
+
+  public final java.lang.String getMediaUrlPattern();
+    descriptor: ()Ljava/lang/String;
+
+  public final java.util.Map<java.lang.String, java.lang.String> component2();
+    descriptor: ()Ljava/util/Map;
+
+  public final java.util.Map<java.lang.String, java.lang.String> getHeaders();
+    descriptor: ()Ljava/util/Map;
+
+  public final java.util.Set<java.lang.String> component4();
+    descriptor: ()Ljava/util/Set;
+
+  public final java.util.Set<java.lang.String> getAllowedTopLevelHosts();
+    descriptor: ()Ljava/util/Set;
+
+  public final long component5();
+    descriptor: ()J
+
+  public final long getTimeoutMillis();
+    descriptor: ()J
+
+  public final org.symera.source.network.MediaBrowserRequest copy(java.lang.String, java.util.Map<java.lang.String, java.lang.String>, java.lang.String, java.util.Set<java.lang.String>, long);
+    descriptor: (Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;Ljava/util/Set;J)Lorg/symera/source/network/MediaBrowserRequest;
+
+  public int hashCode();
+    descriptor: ()I
+
+  public java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+
+  public org.symera.source.network.MediaBrowserRequest(java.lang.String, java.util.Map, java.lang.String, java.util.Set, long, int, kotlin.jvm.internal.DefaultConstructorMarker);
+    descriptor: (Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;Ljava/util/Set;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+
+  public static org.symera.source.network.MediaBrowserRequest copy$default(org.symera.source.network.MediaBrowserRequest, java.lang.String, java.util.Map, java.lang.String, java.util.Set, long, int, java.lang.Object);
+    descriptor: (Lorg/symera/source/network/MediaBrowserRequest;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;Ljava/util/Set;JILjava/lang/Object;)Lorg/symera/source/network/MediaBrowserRequest;
+
+public static final org.symera.source.network.MediaBrowserRequest$Companion Companion;
+    descriptor: Lorg/symera/source/network/MediaBrowserRequest$Companion;
+  public static final long DEFAULT_TIMEOUT_MILLIS = 30000l;
+    descriptor: J
+  public org.symera.source.network.MediaBrowserRequest(java.lang.String, java.util.Map<java.lang.String, java.lang.String>, java.lang.String, java.util.Set<java.lang.String>, long);
+    descriptor: (Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;Ljava/util/Set;J)V
+}
+Compiled from "MediaBrowser.kt"
+public final class org.symera.source.network.MediaBrowserRequest$Companion {
+public org.symera.source.network.MediaBrowserRequest$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
+    descriptor: (Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+Compiled from "MediaBrowser.kt"
+public final class org.symera.source.network.MediaBrowserResult {
+  public boolean equals(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)Z
+
+  public final java.lang.String component1();
+    descriptor: ()Ljava/lang/String;
+
+  public final java.lang.String getMediaUrl();
+    descriptor: ()Ljava/lang/String;
+
+  public final java.util.Map<java.lang.String, java.lang.String> component2();
+    descriptor: ()Ljava/util/Map;
+
+  public final java.util.Map<java.lang.String, java.lang.String> getHeaders();
+    descriptor: ()Ljava/util/Map;
+
+  public final org.symera.source.network.MediaBrowserResult copy(java.lang.String, java.util.Map<java.lang.String, java.lang.String>);
+    descriptor: (Ljava/lang/String;Ljava/util/Map;)Lorg/symera/source/network/MediaBrowserResult;
+
+  public int hashCode();
+    descriptor: ()I
+
+  public java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+
+  public static org.symera.source.network.MediaBrowserResult copy$default(org.symera.source.network.MediaBrowserResult, java.lang.String, java.util.Map, int, java.lang.Object);
+    descriptor: (Lorg/symera/source/network/MediaBrowserResult;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)Lorg/symera/source/network/MediaBrowserResult;
+
+public org.symera.source.network.MediaBrowserResult(java.lang.String, java.util.Map<java.lang.String, java.lang.String>);
+    descriptor: (Ljava/lang/String;Ljava/util/Map;)V
 }
 Compiled from "OkHttpExtensions.kt"
 public final class org.symera.source.network.OkHttpExtensionsKt {
