@@ -208,7 +208,7 @@ class XmlTvParser(
                 if (text.length + length > options.limits.maximumTextLength) {
                     limitExceeded("XMLTV text exceeds length limit")
                 }
-                text.append(ch, start, length)
+                text.appendRange(ch, start, start + length)
             }
         }
 

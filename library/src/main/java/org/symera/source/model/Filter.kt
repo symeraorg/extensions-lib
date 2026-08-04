@@ -143,13 +143,17 @@ data class SortSelection(val index: Int, val ascending: Boolean)
 
 class FilterList private constructor(
     val list: List<Filter<*>>,
-) : List<Filter<*>> by list {
+) : AbstractList<Filter<*>>() {
     constructor(filters: Collection<Filter<*>> = emptyList()) : this(filters.toList())
     constructor(vararg filters: Filter<*>) : this(filters.toList())
 
     init {
         requireValid()
     }
+
+    override val size: Int get() = list.size
+
+    override fun get(index: Int): Filter<*> = list[index]
 
     /** Revalidates mutable state before a filter list crosses the host/extension boundary. */
     fun requireValid(): FilterList {

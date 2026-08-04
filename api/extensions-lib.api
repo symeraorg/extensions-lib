@@ -5126,6 +5126,84 @@ public final class org.symera.source.iptv.parser.XmlTvParserOptions {
 public org.symera.source.iptv.parser.XmlTvParserOptions(org.symera.source.iptv.parser.IptvParseMode, java.lang.String, java.util.Map<java.lang.String, java.lang.String>, java.net.URI, org.symera.source.iptv.parser.IptvParseLimits, int, int);
     descriptor: (Lorg/symera/source/iptv/parser/IptvParseMode;Ljava/lang/String;Ljava/util/Map;Ljava/net/URI;Lorg/symera/source/iptv/parser/IptvParseLimits;II)V
 }
+Compiled from "ContentPublicLinkSource.kt"
+public interface org.symera.source.link.ContentPublicLinkSource extends org.symera.source.SymeraSource {
+  public static java.lang.Object access$getHosters$jd(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SPlayableItem, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SPlayableItem;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object access$getPlayableItems$jd(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object access$getPlayableItems$jd(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SSeason, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SSeason;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object access$getRelated$jd(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object access$getSeasons$jd(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object access$getStreams$jd(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SHoster, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SHoster;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object access$getStreams$jd(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SPlayableItem, kotlin.coroutines.Continuation);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SPlayableItem;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.util.Set access$getSourceCapabilities$jd(org.symera.source.link.ContentPublicLinkSource);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;)Ljava/util/Set;
+
+  public static org.symera.source.model.SPlayableItem access$prepareNewPlayableItem$jd(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SPlayableItem, org.symera.source.model.SContent);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SPlayableItem;Lorg/symera/source/model/SContent;)Lorg/symera/source/model/SPlayableItem;
+
+public abstract org.symera.source.link.PublicContentLink publicContentLink(org.symera.source.model.SContent);
+    descriptor: (Lorg/symera/source/model/SContent;)Lorg/symera/source/link/PublicContentLink;
+}
+Compiled from "ContentPublicLinkSource.kt"
+public final class org.symera.source.link.ContentPublicLinkSource$DefaultImpls {
+  public static java.lang.Object getHosters(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SPlayableItem, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.SHoster>>);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SPlayableItem;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getPlayableItems(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.SPlayableItem>>);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getPlayableItems(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SSeason, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.SPlayableItem>>);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SSeason;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getRelated(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.SContent>>);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getSeasons(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SContent, kotlin.coroutines.Continuation<? super java.util.List<org.symera.source.model.SSeason>>);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SContent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getStreams(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SHoster, kotlin.coroutines.Continuation<? super java.util.List<? extends org.symera.source.model.SStream>>);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SHoster;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static java.lang.Object getStreams(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SPlayableItem, kotlin.coroutines.Continuation<? super java.util.List<? extends org.symera.source.model.SStream>>);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SPlayableItem;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+
+  public static org.symera.source.model.SPlayableItem prepareNewPlayableItem(org.symera.source.link.ContentPublicLinkSource, org.symera.source.model.SPlayableItem, org.symera.source.model.SContent);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;Lorg/symera/source/model/SPlayableItem;Lorg/symera/source/model/SContent;)Lorg/symera/source/model/SPlayableItem;
+
+public static java.util.Set<org.symera.source.SourceCapability> getSourceCapabilities(org.symera.source.link.ContentPublicLinkSource);
+    descriptor: (Lorg/symera/source/link/ContentPublicLinkSource;)Ljava/util/Set;
+}
+Compiled from "ContentPublicLinkSource.kt"
+public final class org.symera.source.link.PublicContentLink {
+  public final okhttp3.HttpUrl getUrl();
+    descriptor: ()Lokhttp3/HttpUrl;
+
+public static final org.symera.source.link.PublicContentLink$Companion Companion;
+    descriptor: Lorg/symera/source/link/PublicContentLink$Companion;
+  public static final int MAXIMUM_URL_LENGTH = 2048;
+    descriptor: I
+  public org.symera.source.link.PublicContentLink(okhttp3.HttpUrl);
+    descriptor: (Lokhttp3/HttpUrl;)V
+}
+Compiled from "ContentPublicLinkSource.kt"
+public final class org.symera.source.link.PublicContentLink$Companion {
+public org.symera.source.link.PublicContentLink$Companion(kotlin.jvm.internal.DefaultConstructorMarker);
+    descriptor: (Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
 Compiled from "LocalSymeraSource.kt"
 public interface org.symera.source.local.LocalSymeraSource extends org.symera.source.SymeraSource {
   public default boolean isSupportedLocalFile(com.hippo.unifile.UniFile);
@@ -6905,6 +6983,9 @@ public final class org.symera.source.model.SContent {
 
   public final org.symera.source.model.UpdateStrategy getUpdateStrategy();
     descriptor: ()Lorg/symera/source/model/UpdateStrategy;
+
+  public final void requireValidPlayableItems(java.util.List<org.symera.source.model.SPlayableItem>);
+    descriptor: (Ljava/util/List;)V
 
   public int hashCode();
     descriptor: ()I

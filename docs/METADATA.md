@@ -49,3 +49,10 @@ data class ContentPage(
 `ContentCategory`: `ANIME`, `CARTOON`, `DOCUMENTARY`, `LIVE_ACTION`. Describes genre independently of structure.
 
 `ContentStructure`: `SINGLE_ITEM`, `FLAT_ITEMS`, `SEASONS`, `UNKNOWN`. Describes source navigation, not external metadata grouping.
+
+### Playable Item Structure
+
+- `SINGLE_ITEM` sources return exactly one reproducible item from `getPlayableItems(SContent)`.
+- A movie split into two or more source-declared parts uses `contentType = MOVIE` and `structure = FLAT_ITEMS`; it does not become a series or receive synthetic seasons.
+- Every multipart movie item has `type = MOVIE`, a distinct `url`/source reference, and retains source list order. A missing part title is valid.
+- Hosts and extensions can call `SContent.requireValidPlayableItems(items)` before accepting a flat or single-item snapshot. The helper rejects invalid `SINGLE_ITEM` and multipart-movie snapshots.

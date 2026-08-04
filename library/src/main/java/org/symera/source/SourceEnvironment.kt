@@ -4,6 +4,7 @@ import okhttp3.OkHttpClient
 import org.symera.source.challenge.WebChallengeInterceptorFactory
 import org.symera.source.local.io.LocalSourceFileSystem
 import org.symera.source.network.JavaScriptEngineFactory
+import org.symera.source.network.MediaBrowserFactory
 
 interface SourceLogger {
     fun debug(message: String)
@@ -41,6 +42,10 @@ interface SourceEnvironment {
 
     /** Optional host-owned JavaScript executor; browser challenge UI remains a separate host concern. */
     val javaScriptEngineFactory: JavaScriptEngineFactory?
+        get() = null
+
+    /** Optional host-owned WebView resolver for JavaScript-generated media URLs. */
+    val mediaBrowserFactory: MediaBrowserFactory?
         get() = null
 
     /** Returns storage isolated to this extension and namespace. */

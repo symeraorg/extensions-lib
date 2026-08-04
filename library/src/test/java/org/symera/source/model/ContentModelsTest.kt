@@ -27,6 +27,53 @@ class ContentModelsTest {
     }
 
     @Test
+    fun singleItemRequiresExactlyOnePlayableItem() {
+        val content = SContent(
+            url = "/movie/example",
+            title = "Example",
+            contentType = ContentType.MOVIE,
+            structure = ContentStructure.SINGLE_ITEM,
+        )
+        val item = SPlayableItem(
+            url = "/movie/example/play",
+            type = PlayableItemType.MOVIE,
+        )
+
+        content.requireValidPlayableItems(listOf(item))
+        assertThrows(IllegalArgumentException::class.java) {
+            content.requireValidPlayableItems(emptyList())
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            content.requireValidPlayableItems(listOf(item, item.copy(url = "/movie/example/extra")))
+        }
+    }
+
+    @Test
+    fun multipartMovieRequiresDistinctMovieItems() {
+        val content = SContent(
+            url = "/movie/example",
+            title = "Example",
+            contentType = ContentType.MOVIE,
+            structure = ContentStructure.FLAT_ITEMS,
+        )
+        val firstPart = SPlayableItem(url = "/movie/example/part-1", type = PlayableItemType.MOVIE)
+        val secondPart = SPlayableItem(url = "/movie/example/part-2", type = PlayableItemType.MOVIE)
+
+        content.requireValidPlayableItems(listOf(firstPart, secondPart))
+        assertThrows(IllegalArgumentException::class.java) {
+            content.requireValidPlayableItems(listOf(firstPart))
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            content.requireValidPlayableItems(
+                listOf(firstPart, secondPart.copy(type = PlayableItemType.EPISODE, episodeNumber = EpisodeNumber(2))),
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            content.requireValidPlayableItems(listOf(firstPart, firstPart.copy(title = "Duplicate")))
+        }
+    }
+
+    @Test
     fun episodeRequiresNumber() {
         assertThrows(IllegalArgumentException::class.java) {
             SPlayableItem(

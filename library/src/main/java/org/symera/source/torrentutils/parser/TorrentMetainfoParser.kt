@@ -298,7 +298,22 @@ internal data class ParsedFile(
     val size: Long,
     val isPadding: Boolean,
     val piecesRoot: ByteArray? = null,
-)
+) {
+    override fun equals(other: Any?): Boolean =
+        other is ParsedFile &&
+            path == other.path &&
+            size == other.size &&
+            isPadding == other.isPadding &&
+            piecesRoot.contentEquals(other.piecesRoot)
+
+    override fun hashCode(): Int {
+        var result = path.hashCode()
+        result = 31 * result + size.hashCode()
+        result = 31 * result + isPadding.hashCode()
+        result = 31 * result + (piecesRoot?.contentHashCode() ?: 0)
+        return result
+    }
+}
 
 private const val V1_HASH_SIZE = 20
 internal const val V2_HASH_SIZE = 32

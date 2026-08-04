@@ -15,6 +15,11 @@ internal data class BencodeBytes(
     override val start: Int,
     override val end: Int,
 ) : BencodeValue(start, end) {
+    override fun equals(other: Any?): Boolean =
+        other is BencodeBytes && start == other.start && end == other.end && bytes.contentEquals(other.bytes)
+
+    override fun hashCode(): Int = 31 * (31 * bytes.contentHashCode() + start) + end
+
     fun utf8(label: String, maxLength: Int): String {
         if (bytes.size > maxLength) throw DeadTorrentException("$label exceeds the configured text limit")
         return try {

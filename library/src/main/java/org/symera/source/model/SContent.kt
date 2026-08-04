@@ -41,4 +41,26 @@ data class SContent(
         require(seasonCount == null || seasonCount >= 0) { "Season count cannot be negative" }
         require(episodeCount == null || episodeCount >= 0) { "Episode count cannot be negative" }
     }
+
+    /**
+     * Validates items returned for this declared [structure].
+     *
+     * A [ContentStructure.SINGLE_ITEM] entry has exactly one playable item. A multipart movie
+     * declares [ContentType.MOVIE] with [ContentStructure.FLAT_ITEMS] and has two or more
+     * distinct [PlayableItemType.MOVIE] items in source order.
+     */
+    fun requireValidPlayableItems(items: List<SPlayableItem>) {
+        if (structure == ContentStructure.SINGLE_ITEM) {
+            require(items.size == 1) { "SINGLE_ITEM content must return exactly one playable item" }
+        }
+        if (contentType == ContentType.MOVIE && structure == ContentStructure.FLAT_ITEMS) {
+            require(items.size >= 2) { "A multipart movie must return at least two playable items" }
+            require(items.all { it.type == PlayableItemType.MOVIE }) {
+                "Every multipart movie item must have type MOVIE"
+            }
+            require(items.map(SPlayableItem::url).toSet().size == items.size) {
+                "Multipart movie items must have distinct source references"
+            }
+        }
+    }
 }
